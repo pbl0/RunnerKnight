@@ -15,6 +15,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
+import javafx.scene.Group;
+import javafx.scene.shape.Rectangle;
 
 /**
  *
@@ -24,17 +26,51 @@ public class Main extends Application {
     
     int ballCenterX = 10;
     int ballCurrentSpeedX = 3;
+    int windowWidth = 640;
+    int windowHeight = 480;
     
     @Override
    public void start(Stage primaryStage) {
         Pane root = new Pane();
-        Scene scene = new Scene(root, 640, 480, Color.BLACK);
+        Scene scene = new Scene(root, windowWidth, windowHeight, Color.LIGHTGREEN);
         primaryStage.setTitle("Postknight");
         primaryStage.setScene(scene);
         primaryStage.show();
         
         Circle circleBall = new Circle(ballCenterX, 30, 7, Color.WHITE);
+        
+        //  GRUPO PERSONAJE
+        Rectangle rectangleCuerpo = new Rectangle(0, 0, 48, 60);
+        Rectangle rectanglePierna1 = new Rectangle(1, 50, 10, 20);
+        Rectangle rectanglePierna2 = new Rectangle(37, 50, 10, 20);
+        Circle circleOjo = new Circle(32, 22, 5);
+        Rectangle rectanglePanuelo = new Rectangle(-1, 7, 50, 13);
+        
+        //Coloreamos
+        rectangleCuerpo.setFill(Color.BLACK);    
+        rectanglePierna1.setFill(Color.BLACK);    
+        rectanglePierna2.setFill(Color.BLACK);    
+        circleOjo.setFill(Color.WHITE);        
+        rectanglePanuelo.setFill(Color.RED);
+        
+        //Grupo
+        Group groupPerson = new Group();
+        groupPerson.getChildren().add(rectangleCuerpo);
+        groupPerson.getChildren().add(rectanglePierna1);
+        groupPerson.getChildren().add(rectanglePierna2);
+        groupPerson.getChildren().add(circleOjo);
+        groupPerson.getChildren().add(rectanglePanuelo);
+        
+        
+        //Posicionamos
+        groupPerson.setLayoutX(100);
+        groupPerson.setLayoutY(300);
+        root.getChildren().add(groupPerson);
+        
+        
+       
         root.getChildren().add(circleBall);
+        
         
         AnimationTimer animationBall = new AnimationTimer() {
             @Override
