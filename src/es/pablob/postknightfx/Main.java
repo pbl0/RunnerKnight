@@ -16,6 +16,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import javafx.scene.Group;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.shape.Rectangle;
 
 /**
@@ -24,20 +26,22 @@ import javafx.scene.shape.Rectangle;
  */
 public class Main extends Application {
     
-    int ballCenterX = 10;
-    int ballCurrentSpeedX = 3;
+    //int ballCenterX = 10;
+    //int ballCurrentSpeedX = 3;
     int windowWidth = 640;
     int windowHeight = 480;
+    int bgX = 0;
+    double bgCurrentSpeed = 1;
     
     @Override
-   public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) {
         Pane root = new Pane();
         Scene scene = new Scene(root, windowWidth, windowHeight, Color.LIGHTGREEN);
         primaryStage.setTitle("Postknight");
         primaryStage.setScene(scene);
         primaryStage.show();
         
-        Circle circleBall = new Circle(ballCenterX, 30, 7, Color.WHITE);
+        //Circle circleBall = new Circle(ballCenterX, 30, 7, Color.WHITE);
         
         //  GRUPO PERSONAJE
         Rectangle rectangleCuerpo = new Rectangle(0, 0, 48, 60);
@@ -61,29 +65,40 @@ public class Main extends Application {
         groupPerson.getChildren().add(circleOjo);
         groupPerson.getChildren().add(rectanglePanuelo);
         
+        //bg
+        ImageView bg = new ImageView(new Image("/bg.png"));
         
         //Posicionamos
         groupPerson.setLayoutX(100);
         groupPerson.setLayoutY(300);
+        //iv1.relocate(10, 10);
+        
         root.getChildren().add(groupPerson);
+        //root.getChildren().add(circleBall);
+        root.getChildren().add(bg);
         
         
-       
-        root.getChildren().add(circleBall);
         
         
         AnimationTimer animationBall = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                circleBall.setCenterX(ballCenterX);
-                ballCenterX += ballCurrentSpeedX;
-                if(ballCenterX >= 640) {
+                //circleBall.setCenterX(ballCenterX);
+                bg.setX(bgX);
+                //ballCenterX += ballCurrentSpeedX;
+                bgX -= bgCurrentSpeed;
+                /*if(ballCenterX >= 640) {
                     ballCurrentSpeedX = -3;
                 }
                 else if (ballCenterX <= 0) {
                     ballCurrentSpeedX = 3;
                 }
-                //System.out.println(ballCenterX);
+                */
+                
+                if(bgX < windowWidth-992) {
+                    
+                }
+                System.out.println(bgX);
                
             };
         };
