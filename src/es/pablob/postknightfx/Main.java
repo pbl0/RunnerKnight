@@ -7,31 +7,27 @@ package es.pablob.postknightfx;
 
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-//import javafx.event.ActionEvent;
-//import javafx.event.EventHandler;
 import javafx.scene.Scene;
-//import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
-import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.shape.Rectangle;
+//import javafx.scene.shape.Rectangle;
+//import javafx.scene.shape.Circle;
+//import javafx.scene.Group;
 
 /**
  *
  * @author PC15
  */
 public class Main extends Application {
-    
-    //int ballCenterX = 10;
-    //int ballCurrentSpeedX = 3;
     int windowWidth = 640;
     int windowHeight = 480;
-    int bgX = 0;
-    double bgCurrentSpeed = 1;
+    int bg1X = 0;
+    int bg2X = 992;
+    int bgSize = 992;
+    int bgCurrentSpeed = 1;
     
     @Override
     public void start(Stage primaryStage) {
@@ -41,69 +37,40 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
         
-        //Circle circleBall = new Circle(ballCenterX, 30, 7, Color.WHITE);
+        //imagenes de fondo
+        Image bg = new Image(getClass().getResourceAsStream("images/bg.png"));
+        ImageView bg1 = new ImageView(bg);
+        ImageView bg2 = new ImageView(bg);
         
-        //  GRUPO PERSONAJE
-        Rectangle rectangleCuerpo = new Rectangle(0, 0, 48, 60);
-        Rectangle rectanglePierna1 = new Rectangle(1, 50, 10, 20);
-        Rectangle rectanglePierna2 = new Rectangle(37, 50, 10, 20);
-        Circle circleOjo = new Circle(32, 22, 5);
-        Rectangle rectanglePanuelo = new Rectangle(-1, 7, 50, 13);
-        
-        //Coloreamos
-        rectangleCuerpo.setFill(Color.BLACK);    
-        rectanglePierna1.setFill(Color.BLACK);    
-        rectanglePierna2.setFill(Color.BLACK);    
-        circleOjo.setFill(Color.WHITE);        
-        rectanglePanuelo.setFill(Color.RED);
-        
-        //Grupo
-        Group groupPerson = new Group();
-        groupPerson.getChildren().add(rectangleCuerpo);
-        groupPerson.getChildren().add(rectanglePierna1);
-        groupPerson.getChildren().add(rectanglePierna2);
-        groupPerson.getChildren().add(circleOjo);
-        groupPerson.getChildren().add(rectanglePanuelo);
-        
-        //bg
-        ImageView bg = new ImageView(new Image("/bg.png"));
-        
-        //Posicionamos
-        groupPerson.setLayoutX(100);
-        groupPerson.setLayoutY(300);
-        //iv1.relocate(10, 10);
-        
-        root.getChildren().add(groupPerson);
-        //root.getChildren().add(circleBall);
-        root.getChildren().add(bg);
-        
-        
-        
-        
-        AnimationTimer animationBall = new AnimationTimer() {
+        root.getChildren().add(bg1);
+        root.getChildren().add(bg2);
+
+        AnimationTimer animationBG = new AnimationTimer() {
             @Override
-            public void handle(long now) {
-                //circleBall.setCenterX(ballCenterX);
-                bg.setX(bgX);
-                //ballCenterX += ballCurrentSpeedX;
-                bgX -= bgCurrentSpeed;
-                /*if(ballCenterX >= 640) {
-                    ballCurrentSpeedX = -3;
-                }
-                else if (ballCenterX <= 0) {
-                    ballCurrentSpeedX = 3;
-                }
-                */
+            public void handle(long now) { 
+                bg1.setX(bg1X);
+                bg2.setX(bg2X);
                 
-                if(bgX < windowWidth-992) {
+                bg1X -= bgCurrentSpeed;
+                bg2X -= bgCurrentSpeed;
+                
+                if(bg1X == -bgSize) {
+                    root.getChildren().remove(bg1);
+                    bg1X = bgSize;
+                    bg1.setX(bg1X);
+                    root.getChildren().add(bg1);
+                    //System.out.println("bg1");
                     
+                } else if (bg2X == -bgSize) {
+                    root.getChildren().remove(bg2);
+                    bg2X = bgSize;
+                    bg2.setX(bg2X);
+                    root.getChildren().add(bg2);
+                    //System.out.println("bg2");
                 }
-                System.out.println(bgX);
-               
             };
         };
-        animationBall.start();
-        
+        animationBG.start();
     }
 
     /**
