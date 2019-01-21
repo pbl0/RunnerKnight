@@ -16,7 +16,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-//import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
+//import javafx.scene.text.Font;
+//import javafx.scene.text.Text;
 
 /**
  *
@@ -30,12 +33,13 @@ public class Main extends Application {
     int bg2X = bgWidth;
     int bgCurrentSpeed = 0;
     int speed = 2;
-    int heroeWidht = 88;
+    int heroeWidth = 88;
     int heroeHeight = 64;
-    int heroeX = 2;
+    int heroeX = 10;
     int heroePosX = 200;
-    int heroeY = 270;
+    int sueloY = 290;
     int heroeSpeed = 0;
+    int hp = 200;
     
     @Override
     public void start(Stage primaryStage) {
@@ -45,7 +49,7 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
         
-        //imagenes de fondo
+        //FONDO:
         Image bg = new Image(getClass().getResourceAsStream("images/bg.png"));
         ImageView bg1 = new ImageView(bg);
         ImageView bg2 = new ImageView(bg);
@@ -53,10 +57,11 @@ public class Main extends Application {
         bg1.setFitHeight(root.getHeight());
         bg2.setFitHeight(root.getHeight());
         
+        //HEROE:
         //heroe corriendo
         Image runGif = new Image(getClass().getResourceAsStream("images/run.gif"));
         ImageView run = new ImageView(runGif);
-        run.setFitWidth(heroeWidht);
+        run.setFitWidth(heroeWidth);
         run.setFitHeight(heroeHeight);
         run.setVisible(false);
         
@@ -64,26 +69,52 @@ public class Main extends Application {
         Image idleGif = new Image(getClass().getResourceAsStream("images/idle.gif"));
         ImageView idle = new ImageView(idleGif);
         idle.setFitHeight(heroeHeight);
-        idle.setFitWidth(heroeWidht);
-
+        idle.setFitWidth(heroeWidth);
         
         //heroe atacando
         Image attackGif = new Image(getClass().getResourceAsStream("images/attack.gif"));
         ImageView attack = new ImageView(attackGif);
         attack.setFitHeight(heroeHeight);
-        attack.setFitWidth(heroeWidht);
+        attack.setFitWidth(heroeWidth);
         attack.setVisible(false);
         
+        //rectangulo para colision
+        Rectangle rectangleHeroe = new Rectangle(25, 8,32,56);
+        //rectangleHeroe.setVisible(false);
+        
         //grupo heroe
-        Group groupHeroe = new Group(run, idle, attack);
+        Group groupHeroe = new Group();
+        groupHeroe.getChildren().addAll(rectangleHeroe,run, idle, attack);
         groupHeroe.setLayoutX(heroeX);
-        groupHeroe.setLayoutY(heroeY);
+        groupHeroe.setLayoutY(sueloY);
         
-        //Rectangle rectanglePersonaje = new Rectangle(200,230,64,64);
-        //rectanglePersonaje.setFill(Color.TRANSPARENT);
+        //ENEMIGOS:
+        //araña:
+        Image spiderGif = new Image(getClass().getResourceAsStream("images/spider.gif"));
+        ImageView spider = new ImageView(spiderGif);
         
-        root.getChildren().addAll(bg1,bg2,groupHeroe);
         
+        Rectangle rectangleSpider = new Rectangle(12,16,36,36);
+        Group spiderGroup = new Group(rectangleSpider,spider );
+        spiderGroup.setLayoutX(100);
+        spiderGroup.setLayoutY(sueloY+15);
+        
+        //colision
+        
+        
+        //HP
+        /*
+        Rectangle rectangleHP = new Rectangle(60,15,200,15);
+        rectangleHP.setFill(Color.GREEN);
+        Text textHP = new Text("HP:");
+        textHP.setFill(Color.GREEN);
+        textHP.setX(10);
+        textHP.setY(30);
+        textHP.setFont(Font.font(22));
+        Group groupHP = new Group(textHP,rectangleHP);
+        */
+        
+        root.getChildren().addAll(bg1,bg2,groupHeroe,spiderGroup);
         
         AnimationTimer animationBG = new AnimationTimer() {
             @Override
@@ -92,9 +123,18 @@ public class Main extends Application {
                 bg2.setX(bg2X);
 
                 groupHeroe.setLayoutX(heroeX);
+                
                 heroeX -= heroeSpeed;
                 bg1X -= bgCurrentSpeed;
                 bg2X -= bgCurrentSpeed;
+                
+                //colision
+                Shape shapeColision = Shape.intersect(rectangleHeroe,rectangleSpider);
+                boolean colisionVacia = shapeColision.getBoundsInLocal().isEmpty();
+                if (colisionVacia == false) {
+                    hp -= 5;
+                    System.out.println(hp);
+                }
                 
                 if(bg1X == -bgWidth) {
                     root.getChildren().remove(bg1);
@@ -129,19 +169,7 @@ public class Main extends Application {
                     heroeSpeed = 0;
                     bgCurrentSpeed = speed; 
                 }
-            }   
-        });
-        scene.addEventHandler(KeyEvent.KEY_RELEASED, (key) -> {
-            if(key.getCode()==KeyCode.RIGHT) {
-                idle.setVisible(true);
-                run.setVisible(false);
-                
-                bgCurrentSpeed = 0;
-                heroeSpeed = 0;
-            }   
-        });
-        scene.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
-            if(key.getCode()==KeyCode.LEFT) {
+            } else if(key.getCode()==KeyCode.LEFT) {
                 groupHeroe.setScaleX(-1);
                 idle.setVisible(false);
                 run.setVisible(true);
@@ -152,35 +180,34 @@ public class Main extends Application {
                 } else {
                     heroeSpeed = 2;
                 }  
-            };   
-        });
-        scene.addEventHandler(KeyEvent.KEY_RELEASED, (key) -> {
-            if(key.getCode()==KeyCode.LEFT) {
-                idle.setVisible(true);
-                run.setVisible(false);
-                bgCurrentSpeed = 0;
-                heroeSpeed = 0;
-            }   
-        });
-        scene.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
-            if(key.getCode()==KeyCode.A) {
+            } else if(key.getCode()==KeyCode.A) {
                 idle.setVisible(false);
                 run.setVisible(false);
                 attack.setVisible(true);
                 bgCurrentSpeed = 0;
                 heroeSpeed = 0;
-            }   
+            }       
         });
         scene.addEventHandler(KeyEvent.KEY_RELEASED, (key) -> {
-            if(key.getCode()==KeyCode.A) {
+            if(key.getCode()==KeyCode.RIGHT) {
+                idle.setVisible(true);
+                run.setVisible(false);
+                bgCurrentSpeed = 0;
+                heroeSpeed = 0;
+            } else if(key.getCode()==KeyCode.LEFT) {
+                idle.setVisible(true);
+                run.setVisible(false);
+                bgCurrentSpeed = 0;
+                heroeSpeed = 0;
+            } else if(key.getCode()==KeyCode.A) {
                 idle.setVisible(true);
                 run.setVisible(false);
                 attack.setVisible(false);
                 bgCurrentSpeed = 0;
                 heroeSpeed = 0;
-            }   
+            }    
         });
-        
+   
     }
     
     /**
