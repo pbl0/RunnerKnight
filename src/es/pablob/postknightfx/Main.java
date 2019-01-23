@@ -5,7 +5,8 @@
  */
 package es.pablob.postknightfx;
 
-import static java.lang.Math.round;
+
+import java.util.Random;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Group;
@@ -19,42 +20,56 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
-//import javafx.scene.text.Font;
-//import javafx.scene.text.Text;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 
 /**
  *
  * @author PC15
  */
 public class Main extends Application {
-    int windowWidth = 640;
-    int windowHeight = 480;
-    int bgWidth = 1024;
-    
-    int suelo1X = 0;
-    int suelo2X = bgWidth;
-    double sky1X = 0;
-    double sky2X = bgWidth;
-    
-    double skySpeed = 0.5;
-    
-    int currentSpeed = 0;
-    int heroeCurrentSpeed = 0;
-    int speed = 2;
-    
-    int heroeWidth = 88;
-    int heroeHeight = 64;
-    int heroeX = 10;
-    int heroePosX = 200;
-    
-    int alturaSuelo = 290;
 
-    int hp = 200;
+    int bgWidth = 1024;
+    int suelo1X;
+    int suelo2X;
+    double sky1X;
+    double sky2X;
+    int currentSpeed;
+    int heroeCurrentSpeed;
+    int speed = 2;
+    int heroCurrentX;
+    int hp;
+    float distancia;
+    int enemyX;
+    boolean enemy;
+    int enemySpeed;
     
-    float distancia = 0;
-    
+    public void reinicio() {
+        suelo1X = 0;
+        suelo2X = bgWidth;
+        sky1X = 0;
+        sky2X = bgWidth;
+        distancia = 0;
+        hp = 200;
+        currentSpeed = 0;
+        heroCurrentX = 10;
+        heroeCurrentSpeed = 0;
+        enemyX = 0;
+        enemy = false;
+         
+    }
     @Override
     public void start(Stage primaryStage) {
+        int windowWidth = 640;
+        int windowHeight = 480;
+        double skySpeed = 0.5;
+        int heroeWidth = 88;
+        int heroeHeight = 64;
+        int heroePosX = 200;
+        int alturaSuelo = 290;
+        
+        this.reinicio();
+        
         Pane root = new Pane();
         Scene scene = new Scene(root, windowWidth, windowHeight, Color.CYAN);
         primaryStage.setTitle("Postknight");
@@ -71,7 +86,9 @@ public class Main extends Application {
         Image imageSuelo = new Image(getClass().getResourceAsStream("images/suelo.png"));
         ImageView suelo1 = new ImageView(imageSuelo);
         ImageView suelo2 = new ImageView(imageSuelo);
-        Group groupSuelo = new Group(suelo1, suelo2);
+        //Group groupSuelo = new Group(suelo1, suelo2);
+        //System.out.println(imageSuelo.getWidth());
+        
         
         Image imageSky = new Image(getClass().getResourceAsStream("images/cielo.png"));
         ImageView sky1 = new ImageView(imageSky);
@@ -105,7 +122,7 @@ public class Main extends Application {
         //grupo heroe
         Group groupHeroe = new Group();
         groupHeroe.getChildren().addAll(rectangleHeroe,run, idle, attack);
-        groupHeroe.setLayoutX(heroeX);
+        groupHeroe.setLayoutX(heroCurrentX);
         groupHeroe.setLayoutY(alturaSuelo);
         
         
@@ -115,17 +132,17 @@ public class Main extends Application {
         ImageView spider = new ImageView(spiderGif);
         Rectangle rectangleSpider = new Rectangle(12,16,36,36);
         Group spiderGroup = new Group(rectangleSpider,spider );
-        spiderGroup.setLayoutX(100);
+        
         spiderGroup.setLayoutY(alturaSuelo+15);
         rectangleSpider.setVisible(false);
         spiderGroup.setVisible(true);
         
-        //colision
+        //Random randomNum = new Random();
+        
         
         
         //HP
-        /*
-        Rectangle rectangleHP = new Rectangle(60,15,200,15);
+        Rectangle rectangleHP = new Rectangle(60,15,hp,15);
         rectangleHP.setFill(Color.GREEN);
         Text textHP = new Text("HP:");
         textHP.setFill(Color.GREEN);
@@ -133,25 +150,23 @@ public class Main extends Application {
         textHP.setY(30);
         textHP.setFont(Font.font(22));
         Group groupHP = new Group(textHP,rectangleHP);
-        */
+        
+        //distancia
+        Text textDistancia = new Text("0.0 m");
+        textDistancia.setX(windowWidth-80);
+        textDistancia.setFill(Color.RED);
+        //textDistancia.setStroke(Color.WHITE);
+        textDistancia.setY(30);
+        textDistancia.setFont(Font.font(22));
         
         
+        root.getChildren().addAll(sky1, sky2, suelo1, suelo2,groupHeroe,groupHP, textDistancia);
         
-        //colision
-        /*
-        Shape shapeColision = Shape.intersect(rectangleHeroe,rectangleSpider);
-        boolean colisionVacia = shapeColision.getBoundsInLocal().isEmpty();
-        if (colisionVacia == false) {
-            hp -= 5;
-            System.out.println(hp);
-            }
-        */
-        root.getChildren().addAll(sky1, sky2, suelo1, suelo2,spiderGroup,groupHeroe);
         
         AnimationTimer animation = new AnimationTimer() {
             @Override
             public void handle(long now) { 
-                System.out.println(distancia/10);
+                //System.out.println(distancia/10);
                 
                 suelo1.setX(suelo1X);
                 suelo2.setX(suelo2X);
@@ -159,9 +174,9 @@ public class Main extends Application {
                 sky1.setX(sky1X);
                 sky2.setX(sky2X);
                 
-                groupHeroe.setLayoutX(heroeX);
+                groupHeroe.setLayoutX(heroCurrentX);
                 
-                heroeX -= heroeCurrentSpeed;
+                heroCurrentX -= heroeCurrentSpeed;
                 
                 suelo1X -= currentSpeed;
                 suelo2X -= currentSpeed;
@@ -169,7 +184,20 @@ public class Main extends Application {
                 sky1X -= skySpeed;
                 sky2X -= skySpeed;
                 
+                if (enemy == true) {
+                    enemyX -= enemySpeed;
+                    spiderGroup.setLayoutX(enemyX);
+                    Shape shapeColision = Shape.intersect(rectangleHeroe,rectangleSpider);
+                    boolean colisionVacia = shapeColision.getBoundsInLocal().isEmpty();
+                    if (colisionVacia == false) {
+                        //run.setOpacity(0.7);
+                        //idle.setOpacity(0.7);
+                        hp -= 2;
+                    }
+                }
 
+                
+                rectangleHP.setWidth(hp);
                 if(suelo1X == -bgWidth) {
                     root.getChildren().remove(suelo1);
                     suelo1X = bgWidth;
@@ -202,15 +230,12 @@ public class Main extends Application {
                     suelo2.toFront();
                     groupHeroe.toFront();  
                 }
-                Shape shapeColision = Shape.intersect(rectangleHeroe,rectangleSpider);
-                boolean colisionVacia = shapeColision.getBoundsInLocal().isEmpty();
-                if (colisionVacia == false) {
-                    //run.setOpacity(0.7);
-                    //idle.setOpacity(0.7);
-                    hp -= 5;
-                    //System.out.println(hp);
-                    
-;
+
+                if (distancia/10 % 30 == 0 && distancia != 0 && enemy == false) {
+                    enemyX = 650;
+                    spiderGroup.setLayoutX(enemyX);
+                    root.getChildren().add(spiderGroup);
+                    enemy = true;
                 }
             };
         };
@@ -224,13 +249,16 @@ public class Main extends Application {
                 idle.setVisible(false);
                 run.setVisible(true);
                 attack.setVisible(false);
-                if (heroeX <= heroePosX) {
+                if (heroCurrentX <= heroePosX) {
                     currentSpeed = 0;
-                    heroeCurrentSpeed =-2;
+                    heroeCurrentSpeed =-speed;
+                    
                 } else {
                     heroeCurrentSpeed = 0;
                     currentSpeed = speed;
                     distancia +=1;
+                    textDistancia.setText(distancia/10+" m");
+                    enemySpeed = 4;
                 }
             } else if(key.getCode()==KeyCode.LEFT) {
                 groupHeroe.setScaleX(-1);
@@ -238,10 +266,10 @@ public class Main extends Application {
                 run.setVisible(true);
                 attack.setVisible(false);
                 currentSpeed = 0;
-                if (heroeX <= 2){
+                if (heroCurrentX <= 2){
                     heroeCurrentSpeed = 0;
                 } else {
-                    heroeCurrentSpeed = 2;
+                    heroeCurrentSpeed = speed;
                 }  
             } else if(key.getCode()==KeyCode.A) {
                 idle.setVisible(false);
@@ -249,7 +277,11 @@ public class Main extends Application {
                 attack.setVisible(true);
                 currentSpeed = 0;
                 heroeCurrentSpeed = 0;
-            }       
+            } else if(key.getCode()==KeyCode.R) {
+                this.reinicio();
+                //System.out.println(randomNum.nextInt(100));
+                //System.out.println(rectangleHP.getWidth());
+            }      
         });
         scene.addEventHandler(KeyEvent.KEY_RELEASED, (key) -> {
             if(key.getCode()==KeyCode.RIGHT) {
@@ -257,6 +289,7 @@ public class Main extends Application {
                 run.setVisible(false);
                 currentSpeed = 0;
                 heroeCurrentSpeed = 0;
+                enemySpeed = 2;
             } else if(key.getCode()==KeyCode.LEFT) {
                 idle.setVisible(true);
                 run.setVisible(false);
@@ -268,6 +301,7 @@ public class Main extends Application {
                 attack.setVisible(false);
                 currentSpeed = 0;
                 heroeCurrentSpeed = 0;
+                
             }    
         });
    
