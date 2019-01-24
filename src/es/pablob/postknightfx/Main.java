@@ -43,6 +43,7 @@ public class Main extends Application {
     int enemyX;
     boolean enemy;
     int enemySpeed;
+    Group groupEnemy = new Group();
     
     public void reinicio() {
         suelo1X = 0;
@@ -54,10 +55,21 @@ public class Main extends Application {
         currentSpeed = 0;
         heroCurrentX = 10;
         heroeCurrentSpeed = 0;
-        enemyX = 0;
+        enemyX = 640;
         enemy = false;
-         
+        groupEnemy.getChildren().clear();
+        
     }
+    public void colision(Rectangle rect1, Rectangle rect2, int dmg) {
+        Shape shapeColision = Shape.intersect(rect1,rect2);
+        boolean colisionVacia = shapeColision.getBoundsInLocal().isEmpty();
+        if (colisionVacia == false) {
+            hp -= dmg;
+        } 
+    }
+
+    
+    
     @Override
     public void start(Stage primaryStage) {
         int windowWidth = 640;
@@ -128,16 +140,28 @@ public class Main extends Application {
         
         //ENEMIGOS:
         //araña:
-        Image spiderGif = new Image(getClass().getResourceAsStream("images/spider.gif"));
-        ImageView spider = new ImageView(spiderGif);
+        Image gifSpider = new Image(getClass().getResourceAsStream("images/spider.gif"));
+        ImageView spider = new ImageView(gifSpider);
+        
         Rectangle rectangleSpider = new Rectangle(12,16,36,36);
-        Group spiderGroup = new Group(rectangleSpider,spider );
-        
-        spiderGroup.setLayoutY(alturaSuelo+15);
         rectangleSpider.setVisible(false);
-        spiderGroup.setVisible(true);
         
-        //Random randomNum = new Random();
+        Group groupSpider = new Group(rectangleSpider,spider );
+        groupSpider.setLayoutY(alturaSuelo+15);
+        
+        //groupSpider.setVisible(true);
+        
+        
+        Image gifBat = new Image(getClass().getResourceAsStream("images/bat.gif"));
+        ImageView bat = new ImageView(gifBat);
+        
+        Rectangle rectangleBat = new Rectangle(0,46,36,36);
+        rectangleBat.setVisible(false);
+        
+        Group groupBat = new Group(rectangleBat, bat);
+        groupBat.setLayoutY(alturaSuelo-36);
+        
+        
         
         
         
@@ -152,7 +176,7 @@ public class Main extends Application {
         Group groupHP = new Group(textHP,rectangleHP);
         
         //distancia
-        Text textDistancia = new Text("0.0 m");
+        Text textDistancia = new Text("0.0  m");
         textDistancia.setX(windowWidth-80);
         textDistancia.setFill(Color.RED);
         //textDistancia.setStroke(Color.WHITE);
@@ -160,7 +184,8 @@ public class Main extends Application {
         textDistancia.setFont(Font.font(22));
         
         
-        root.getChildren().addAll(sky1, sky2, suelo1, suelo2,groupHeroe,groupHP, textDistancia);
+        
+        root.getChildren().addAll(sky1, sky2, suelo1, suelo2,groupHeroe,groupHP, textDistancia, groupEnemy);
         
         
         AnimationTimer animation = new AnimationTimer() {
@@ -184,20 +209,19 @@ public class Main extends Application {
                 sky1X -= skySpeed;
                 sky2X -= skySpeed;
                 
+                textDistancia.setText(distancia/10+" m");
+                
                 if (enemy == true) {
                     enemyX -= enemySpeed;
-                    spiderGroup.setLayoutX(enemyX);
-                    Shape shapeColision = Shape.intersect(rectangleHeroe,rectangleSpider);
-                    boolean colisionVacia = shapeColision.getBoundsInLocal().isEmpty();
-                    if (colisionVacia == false) {
-                        //run.setOpacity(0.7);
-                        //idle.setOpacity(0.7);
-                        hp -= 2;
-                    }
-                }
+                    groupEnemy.setLayoutX(enemyX);
+                    
+                    colision(rectangleHeroe, rectangleSpider,2);
+                    colision(rectangleHeroe, rectangleBat,1);
 
+                }
                 
                 rectangleHP.setWidth(hp);
+                
                 if(suelo1X == -bgWidth) {
                     root.getChildren().remove(suelo1);
                     suelo1X = bgWidth;
@@ -231,10 +255,20 @@ public class Main extends Application {
                     groupHeroe.toFront();  
                 }
 
-                if (distancia/10 % 30 == 0 && distancia != 0 && enemy == false) {
-                    enemyX = 650;
-                    spiderGroup.setLayoutX(enemyX);
-                    root.getChildren().add(spiderGroup);
+                if (distancia/10 % 20 == 0 && distancia != 0 && enemy == false) {
+
+                    Random randomNum = new Random();
+                    int enemyNum = randomNum.nextInt(2);
+                    System.out.println(enemyNum);
+                    switch (enemyNum) {
+                        case 0: groupEnemy.getChildren().add(groupSpider);
+                                break;
+                        case 1: groupEnemy.getChildren().add(groupBat);
+                                break;
+                    }
+                    
+                    groupEnemy.setLayoutX(enemyX);
+                    //root.getChildren().add(groupEnemy);
                     enemy = true;
                 }
             };
@@ -257,7 +291,7 @@ public class Main extends Application {
                     heroeCurrentSpeed = 0;
                     currentSpeed = speed;
                     distancia +=1;
-                    textDistancia.setText(distancia/10+" m");
+                    
                     enemySpeed = 4;
                 }
             } else if(key.getCode()==KeyCode.LEFT) {
