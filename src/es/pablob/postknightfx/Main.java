@@ -9,6 +9,9 @@ package es.pablob.postknightfx;
 import java.util.Random;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
@@ -18,10 +21,12 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 
 /**
  *
@@ -43,6 +48,8 @@ public class Main extends Application {
     int enemyX;
     boolean enemy;
     int enemySpeed;
+    int enemyHP;
+    boolean ataque;
     Group groupEnemy = new Group();
     
     public void reinicio() {
@@ -56,6 +63,7 @@ public class Main extends Application {
         heroCurrentX = 10;
         heroeCurrentSpeed = 0;
         enemyX = 640;
+        enemyHP = 100;
         enemy = false;
         groupEnemy.getChildren().clear();
         
@@ -65,6 +73,13 @@ public class Main extends Application {
         boolean colisionVacia = shapeColision.getBoundsInLocal().isEmpty();
         if (colisionVacia == false) {
             hp -= dmg;
+        } 
+    }
+    public void colisionAtaque(Rectangle rect1, Rectangle rect2, int dmg) {
+        Shape shapeColision = Shape.intersect(rect1,rect2);
+        boolean colisionVacia = shapeColision.getBoundsInLocal().isEmpty();
+        if (colisionVacia == false) {
+            enemyHP -= dmg;
         } 
     }
 
@@ -79,6 +94,8 @@ public class Main extends Application {
         int heroeHeight = 64;
         int heroePosX = 200;
         int alturaSuelo = 290;
+        ataque = false;
+        
         
         this.reinicio();
         
@@ -87,12 +104,6 @@ public class Main extends Application {
         primaryStage.setTitle("Postknight");
         primaryStage.setScene(scene);
         primaryStage.show();
-        
-        //FONDO:
-        //Image bg = new Image(getClass().getResourceAsStream("images/bg.png"));
-        //ImageView bg1 = new ImageView(bg);
-        //ImageView bg2 = new ImageView(bg);
-        
         
         //FONDO:
         Image imageSuelo = new Image(getClass().getResourceAsStream("images/suelo.png"));
@@ -128,17 +139,20 @@ public class Main extends Application {
         attack.setVisible(false);
         //rectangulo para colision
         Rectangle rectangleHeroe = new Rectangle(25, 8,32,56);
-        rectangleHeroe.setVisible(false);
+        rectangleHeroe.setVisible(true);
+        Rectangle rectangleAtaque = new Rectangle(45,8,32,56);
+        rectangleAtaque.setFill(Color.RED);
         //rectangleHeroe.setVisible(false);
         
         //grupo heroe
         Group groupHeroe = new Group();
-        groupHeroe.getChildren().addAll(rectangleHeroe,run, idle, attack);
+        groupHeroe.getChildren().addAll(rectangleAtaque, rectangleHeroe, run, idle, attack);
         groupHeroe.setLayoutX(heroCurrentX);
         groupHeroe.setLayoutY(alturaSuelo);
         
         
         //ENEMIGOS:
+        
         //araña:
         Image gifSpider = new Image(getClass().getResourceAsStream("images/spider.gif"));
         ImageView spider = new ImageView(gifSpider);
@@ -160,11 +174,7 @@ public class Main extends Application {
         
         Group groupBat = new Group(rectangleBat, bat);
         groupBat.setLayoutY(alturaSuelo-36);
-        
-        
-        
-        
-        
+
         //HP
         Rectangle rectangleHP = new Rectangle(60,15,hp,15);
         rectangleHP.setFill(Color.GREEN);
@@ -184,8 +194,21 @@ public class Main extends Application {
         textDistancia.setFont(Font.font(22));
         
         
+        //GameOver
+        VBox vbox = new VBox();
+        Text textGameOver = new Text("GAME OVER");
+        textGameOver.setFont(Font.font(50));
+        textGameOver.setFill(Color.DARKRED);
+        Text textReinicio = new Text("Pulsa 'R' para reinciar");
+        textReinicio.setFont(Font.font(25));
+        textReinicio.setFill(Color.DARKRED);
+        vbox.getChildren().addAll(textGameOver, textReinicio);
+        vbox.setAlignment(Pos.CENTER);
+        vbox.setPrefSize(root.getWidth(), root.getHeight());
         
-        root.getChildren().addAll(sky1, sky2, suelo1, suelo2,groupHeroe,groupHP, textDistancia, groupEnemy);
+        Group groupHUD = new Group(groupHP, textDistancia);
+        
+        root.getChildren().addAll(sky1, sky2, suelo1, suelo2,groupHeroe,groupHUD, groupEnemy);
         
         
         AnimationTimer animation = new AnimationTimer() {
@@ -217,9 +240,26 @@ public class Main extends Application {
                     
                     colision(rectangleHeroe, rectangleSpider,2);
                     colision(rectangleHeroe, rectangleBat,1);
+                    
+                    if (ataque == true) {
+                        System.out.println(enemyHP);
+                        colisionAtaque(rectangleAtaque, rectangleSpider,5);
+                        colisionAtaque(rectangleAtaque, rectangleBat,5);   
+                    }
+
+
+                    
+                    if (enemyX == -8 || enemyHP <= 0) {
+                        groupEnemy.getChildren().clear();
+                        enemyHP = 100;
+                        enemy = false;
+                        enemyX = 640;
+                    } 
+                    
+                    
 
                 }
-                
+                //System.out.println(hp);
                 rectangleHP.setWidth(hp);
                 
                 if(suelo1X == -bgWidth) {
@@ -244,6 +284,8 @@ public class Main extends Application {
                     suelo1.toFront();
                     suelo2.toFront();
                     groupHeroe.toFront();
+                    groupHUD.toFront();
+                    groupEnemy.toFront();
                     
                 } else if (sky2X == -bgWidth) {
                     root.getChildren().remove(sky2);
@@ -253,6 +295,8 @@ public class Main extends Application {
                     suelo1.toFront();
                     suelo2.toFront();
                     groupHeroe.toFront();  
+                    groupHUD.toFront();
+                    groupEnemy.toFront();
                 }
 
                 if (distancia/10 % 20 == 0 && distancia != 0 && enemy == false) {
@@ -271,8 +315,16 @@ public class Main extends Application {
                     //root.getChildren().add(groupEnemy);
                     enemy = true;
                 }
+                    
+                if (hp <= 0) {
+                    System.out.println("muerto");
+                    root.getChildren().add(vbox);
+                    
+                }
+                
             };
         };
+        
         
         animation.start();
         
@@ -311,8 +363,10 @@ public class Main extends Application {
                 attack.setVisible(true);
                 currentSpeed = 0;
                 heroeCurrentSpeed = 0;
+                ataque = true;
             } else if(key.getCode()==KeyCode.R) {
                 this.reinicio();
+                root.getChildren().remove(vbox);
                 //System.out.println(randomNum.nextInt(100));
                 //System.out.println(rectangleHP.getWidth());
             }      
@@ -333,8 +387,11 @@ public class Main extends Application {
                 idle.setVisible(true);
                 run.setVisible(false);
                 attack.setVisible(false);
+                ataque = false;
                 currentSpeed = 0;
                 heroeCurrentSpeed = 0;
+                
+
                 
             }    
         });
