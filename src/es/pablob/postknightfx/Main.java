@@ -9,9 +9,7 @@ package es.pablob.postknightfx;
 import java.util.Random;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.VPos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
@@ -26,7 +24,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 
 /**
  *
@@ -50,6 +47,7 @@ public class Main extends Application {
     int enemySpeed;
     int enemyHP;
     boolean ataque;
+    int distanciaEnemigos;
     Group groupEnemy = new Group();
     
     public void reinicio() {
@@ -64,6 +62,7 @@ public class Main extends Application {
         heroeCurrentSpeed = 0;
         enemyX = 640;
         enemyHP = 100;
+        distanciaEnemigos = 20;
         enemy = false;
         groupEnemy.getChildren().clear();
         
@@ -75,16 +74,18 @@ public class Main extends Application {
             hp -= dmg;
         } 
     }
-    public void colisionAtaque(Rectangle rect1, Rectangle rect2, int dmg) {
+    public boolean colisionAtaque(Rectangle rect1, Rectangle rect2, int dmg) {
         Shape shapeColision = Shape.intersect(rect1,rect2);
         boolean colisionVacia = shapeColision.getBoundsInLocal().isEmpty();
         if (colisionVacia == false) {
             enemyHP -= dmg;
-        } 
+            return true;
+            
+        } else {
+            return false;
+        }
     }
 
-    
-    
     @Override
     public void start(Stage primaryStage) {
         int windowWidth = 640;
@@ -139,10 +140,10 @@ public class Main extends Application {
         attack.setVisible(false);
         //rectangulo para colision
         Rectangle rectangleHeroe = new Rectangle(25, 8,32,56);
-        rectangleHeroe.setVisible(true);
+        rectangleHeroe.setVisible(false);
         Rectangle rectangleAtaque = new Rectangle(45,8,32,56);
-        rectangleAtaque.setFill(Color.RED);
-        //rectangleHeroe.setVisible(false);
+        //rectangleAtaque.setFill(Color.RED);
+        rectangleAtaque.setVisible(false);
         
         //grupo heroe
         Group groupHeroe = new Group();
@@ -150,9 +151,7 @@ public class Main extends Application {
         groupHeroe.setLayoutX(heroCurrentX);
         groupHeroe.setLayoutY(alturaSuelo);
         
-        
         //ENEMIGOS:
-        
         //araña:
         Image gifSpider = new Image(getClass().getResourceAsStream("images/spider.gif"));
         ImageView spider = new ImageView(gifSpider);
@@ -163,9 +162,6 @@ public class Main extends Application {
         Group groupSpider = new Group(rectangleSpider,spider );
         groupSpider.setLayoutY(alturaSuelo+15);
         
-        //groupSpider.setVisible(true);
-        
-        
         Image gifBat = new Image(getClass().getResourceAsStream("images/bat.gif"));
         ImageView bat = new ImageView(gifBat);
         
@@ -174,6 +170,11 @@ public class Main extends Application {
         
         Group groupBat = new Group(rectangleBat, bat);
         groupBat.setLayoutY(alturaSuelo-36);
+        
+        
+        Rectangle rectangleEnemyHP = new Rectangle(0,alturaSuelo,enemyHP/2,6);
+        rectangleEnemyHP.setFill(Color.RED);
+        //groupEnemy.getChildren().add(rectangleEnemyHP);
 
         //HP
         Rectangle rectangleHP = new Rectangle(60,15,hp,15);
@@ -234,32 +235,40 @@ public class Main extends Application {
                 
                 textDistancia.setText(distancia/10+" m");
                 
+                if (distancia/10 == 60) {
+                    distanciaEnemigos = 10;
+                } else if (distancia/10 == 100) {
+                    distanciaEnemigos = 5;
+                }
+                    
+                
                 if (enemy == true) {
                     enemyX -= enemySpeed;
                     groupEnemy.setLayoutX(enemyX);
+                    rectangleEnemyHP.setWidth(enemyHP/2);
                     
                     colision(rectangleHeroe, rectangleSpider,2);
                     colision(rectangleHeroe, rectangleBat,1);
                     
                     if (ataque == true) {
-                        System.out.println(enemyHP);
-                        colisionAtaque(rectangleAtaque, rectangleSpider,5);
-                        colisionAtaque(rectangleAtaque, rectangleBat,5);   
+                        boolean tocadoSpider = colisionAtaque(rectangleAtaque, rectangleSpider,34);
+                        boolean tocadoBat = colisionAtaque(rectangleAtaque, rectangleBat,50);
+                        
+                        if (tocadoSpider == true || tocadoBat ==true){
+                            enemyX += 30;
+                            enemyX += 60;
+                            
+                        }
                     }
 
-
-                    
                     if (enemyX == -8 || enemyHP <= 0) {
                         groupEnemy.getChildren().clear();
                         enemyHP = 100;
                         enemy = false;
                         enemyX = 640;
-                    } 
-                    
-                    
-
+                    }
                 }
-                //System.out.println(hp);
+                
                 rectangleHP.setWidth(hp);
                 
                 if(suelo1X == -bgWidth) {
@@ -299,27 +308,25 @@ public class Main extends Application {
                     groupEnemy.toFront();
                 }
 
-                if (distancia/10 % 20 == 0 && distancia != 0 && enemy == false) {
+                if (distancia/10 % distanciaEnemigos == 0 && distancia != 0 && enemy == false) {
 
                     Random randomNum = new Random();
                     int enemyNum = randomNum.nextInt(2);
                     System.out.println(enemyNum);
                     switch (enemyNum) {
-                        case 0: groupEnemy.getChildren().add(groupSpider);
+                        case 0: groupEnemy.getChildren().addAll(groupSpider,rectangleEnemyHP);
                                 break;
-                        case 1: groupEnemy.getChildren().add(groupBat);
+                        case 1: groupEnemy.getChildren().addAll(groupBat,rectangleEnemyHP);
                                 break;
                     }
                     
                     groupEnemy.setLayoutX(enemyX);
-                    //root.getChildren().add(groupEnemy);
                     enemy = true;
                 }
                     
                 if (hp <= 0) {
                     System.out.println("muerto");
                     root.getChildren().add(vbox);
-                    
                 }
                 
             };
@@ -390,9 +397,7 @@ public class Main extends Application {
                 ataque = false;
                 currentSpeed = 0;
                 heroeCurrentSpeed = 0;
-                
 
-                
             }    
         });
    
