@@ -30,7 +30,7 @@ import javafx.scene.text.Text;
  * @author PC15
  */
 public class Main extends Application {
-
+    
     int bgWidth = 1024;
     int suelo1X;
     int suelo2X;
@@ -49,6 +49,7 @@ public class Main extends Application {
     boolean ataque;
     int distanciaEnemigos;
     Group groupEnemy = new Group();
+    int tocadoSpider = 0;
     
     public void reinicio() {
         suelo1X = 0;
@@ -74,16 +75,18 @@ public class Main extends Application {
             hp -= dmg;
         } 
     }
-    public boolean colisionAtaque(Rectangle rect1, Rectangle rect2, int dmg) {
+    public void colisionAtaque(Rectangle rect1, Rectangle rect2, int dmg) {
         Shape shapeColision = Shape.intersect(rect1,rect2);
         boolean colisionVacia = shapeColision.getBoundsInLocal().isEmpty();
         if (colisionVacia == false) {
-            enemyHP -= dmg;
-            return true;
-            
-        } else {
-            return false;
+            enemyHP -= dmg;   
         }
+    }
+    
+    public Rectangle rectangleEnemy(String nombre) {
+        
+        Rectangle rectangle = new Rectangle(0,46,36,36);
+        return rectangle;
     }
 
     @Override
@@ -95,6 +98,7 @@ public class Main extends Application {
         int heroeHeight = 64;
         int heroePosX = 200;
         int alturaSuelo = 290;
+        
         ataque = false;
         
         
@@ -117,6 +121,12 @@ public class Main extends Application {
         Image imageSky = new Image(getClass().getResourceAsStream("images/cielo.png"));
         ImageView sky1 = new ImageView(imageSky);
         ImageView sky2 = new ImageView(imageSky);
+        
+//        Hero hero = new Hero();
+//        hero.mover();
+//        hero.herir();
+
+        
         
         //HEROE:
         //heroe corriendo
@@ -212,6 +222,7 @@ public class Main extends Application {
         root.getChildren().addAll(sky1, sky2, suelo1, suelo2,groupHeroe,groupHUD, groupEnemy);
         
         
+        
         AnimationTimer animation = new AnimationTimer() {
             @Override
             public void handle(long now) { 
@@ -243,25 +254,39 @@ public class Main extends Application {
                     
                 
                 if (enemy == true) {
-                    enemyX -= enemySpeed;
-                    groupEnemy.setLayoutX(enemyX);
+                    System.out.println(tocadoSpider);
+                    if (ataque == true) {
+                        Shape shapeColision = Shape.intersect(rectangleAtaque,rectangleSpider);
+                        boolean colisionVacia = shapeColision.getBoundsInLocal().isEmpty();
+                        if (colisionVacia == false) {
+                            enemyHP -= 34;
+                            tocadoSpider = 10;
+                        }
+                        
+                        
+                        if (tocadoSpider > 0){
+                                tocadoSpider -= 1;
+                                enemyX += 10;
+                                groupEnemy.setLayoutX(enemyX);  
+                            
+                        } else{
+                            enemyX -= enemySpeed;
+                            groupEnemy.setLayoutX(enemyX);
+                            
+                        }
+                    } else {
+                        enemyX -= enemySpeed;
+                        groupEnemy.setLayoutX(enemyX);
+                    }
+
                     rectangleEnemyHP.setWidth(enemyHP/2);
                     
                     colision(rectangleHeroe, rectangleSpider,2);
                     colision(rectangleHeroe, rectangleBat,1);
                     
-                    if (ataque == true) {
-                        boolean tocadoSpider = colisionAtaque(rectangleAtaque, rectangleSpider,34);
-                        boolean tocadoBat = colisionAtaque(rectangleAtaque, rectangleBat,50);
-                        
-                        if (tocadoSpider == true || tocadoBat ==true){
-                            enemyX += 30;
-                            enemyX += 60;
-                            
-                        }
-                    }
 
-                    if (enemyX == -8 || enemyHP <= 0) {
+
+                    if (enemyX == -10 || enemyHP <= 0) {
                         groupEnemy.getChildren().clear();
                         enemyHP = 100;
                         enemy = false;
@@ -272,49 +297,36 @@ public class Main extends Application {
                 rectangleHP.setWidth(hp);
                 
                 if(suelo1X == -bgWidth) {
-                    root.getChildren().remove(suelo1);
                     suelo1X = bgWidth;
                     suelo1.setX(suelo1X);
-                    root.getChildren().add(suelo1);
-                    groupHeroe.toFront();
+
+
                     
                 } else if (suelo2X == -bgWidth) {
-                    root.getChildren().remove(suelo2);
                     suelo2X = bgWidth;
                     suelo2.setX(suelo2X);
-                    root.getChildren().add(suelo2);
-                    groupHeroe.toFront();  
+
+
                 }
                 if(sky1X == -bgWidth) {
-                    root.getChildren().remove(sky1);
                     sky1X = bgWidth;
                     sky1.setX(sky1X);
-                    root.getChildren().add(sky1);
-                    suelo1.toFront();
-                    suelo2.toFront();
-                    groupHeroe.toFront();
-                    groupHUD.toFront();
-                    groupEnemy.toFront();
+
                     
                 } else if (sky2X == -bgWidth) {
-                    root.getChildren().remove(sky2);
                     sky2X = bgWidth;
                     sky2.setX(sky2X);
-                    root.getChildren().add(sky2);
-                    suelo1.toFront();
-                    suelo2.toFront();
-                    groupHeroe.toFront();  
-                    groupHUD.toFront();
-                    groupEnemy.toFront();
+
                 }
 
                 if (distancia/10 % distanciaEnemigos == 0 && distancia != 0 && enemy == false) {
 
                     Random randomNum = new Random();
-                    int enemyNum = randomNum.nextInt(2);
+                    int enemyNum = randomNum.nextInt(1);
                     System.out.println(enemyNum);
                     switch (enemyNum) {
                         case 0: groupEnemy.getChildren().addAll(groupSpider,rectangleEnemyHP);
+                                
                                 break;
                         case 1: groupEnemy.getChildren().addAll(groupBat,rectangleEnemyHP);
                                 break;
