@@ -31,7 +31,7 @@ import javafx.scene.text.Text;
  */
 public class Main extends Application {
     
-    int bgWidth = 1024;
+    final int ANCHO_FONDO = 1024;
     int suelo1X;
     int suelo2X;
     double sky1X;
@@ -40,7 +40,6 @@ public class Main extends Application {
     int heroeCurrentSpeed;
     int speed = 2;
     int heroCurrentX;
-    int hp;
     float distancia;
     int enemyX;
     boolean enemy;
@@ -49,15 +48,16 @@ public class Main extends Application {
     boolean ataque;
     int distanciaEnemigos;
     Group groupEnemy = new Group();
-    int tocadoSpider = 0;
+    int tocado = 0;
+    Hero hero = new Hero();
     
     public void reinicio() {
         suelo1X = 0;
-        suelo2X = bgWidth;
+        suelo2X = ANCHO_FONDO;
         sky1X = 0;
-        sky2X = bgWidth;
+        sky2X = ANCHO_FONDO;
         distancia = 0;
-        hp = 200;
+        //hp = 200;
         currentSpeed = 0;
         heroCurrentX = 10;
         heroeCurrentSpeed = 0;
@@ -66,28 +66,28 @@ public class Main extends Application {
         distanciaEnemigos = 20;
         enemy = false;
         groupEnemy.getChildren().clear();
+        hero.setVida(200);
         
     }
     public void colision(Rectangle rect1, Rectangle rect2, int dmg) {
         Shape shapeColision = Shape.intersect(rect1,rect2);
         boolean colisionVacia = shapeColision.getBoundsInLocal().isEmpty();
         if (colisionVacia == false) {
-            hp -= dmg;
+            hero.setVida(hero.getVida()-dmg);
         } 
     }
-    public void colisionAtaque(Rectangle rect1, Rectangle rect2, int dmg) {
+    public boolean colisionAtaque(Rectangle rect1, Rectangle rect2) {
         Shape shapeColision = Shape.intersect(rect1,rect2);
         boolean colisionVacia = shapeColision.getBoundsInLocal().isEmpty();
-        if (colisionVacia == false) {
-            enemyHP -= dmg;   
-        }
+        return colisionVacia;
     }
+
     
-    public Rectangle rectangleEnemy(String nombre) {
-        
-        Rectangle rectangle = new Rectangle(0,46,36,36);
-        return rectangle;
-    }
+//    public Rectangle rectangleEnemy(String nombre) {
+//        
+//        Rectangle rectangle = new Rectangle(0,46,36,36);
+//        return rectangle;
+//    }
 
     @Override
     public void start(Stage primaryStage) {
@@ -160,7 +160,7 @@ public class Main extends Application {
         groupHeroe.getChildren().addAll(rectangleAtaque, rectangleHeroe, run, idle, attack);
         groupHeroe.setLayoutX(heroCurrentX);
         groupHeroe.setLayoutY(alturaSuelo);
-        
+         
         //ENEMIGOS:
         //araña:
         Image gifSpider = new Image(getClass().getResourceAsStream("images/spider.gif"));
@@ -171,7 +171,7 @@ public class Main extends Application {
         
         Group groupSpider = new Group(rectangleSpider,spider );
         groupSpider.setLayoutY(alturaSuelo+15);
-        
+        //murcielago
         Image gifBat = new Image(getClass().getResourceAsStream("images/bat.gif"));
         ImageView bat = new ImageView(gifBat);
         
@@ -181,13 +181,25 @@ public class Main extends Application {
         Group groupBat = new Group(rectangleBat, bat);
         groupBat.setLayoutY(alturaSuelo-36);
         
+        //ciclope
+        Image gifCyclop = new Image(getClass().getResourceAsStream("images/cyclops.gif"));
+        ImageView cyclop = new ImageView(gifCyclop);
+        Rectangle rectangleCyclop = new Rectangle(20,26,26,38);
+        rectangleCyclop.setVisible(false);
+        Group groupCyclop = new Group(rectangleCyclop, cyclop);
+        groupCyclop.setScaleX(1.5);
+        groupCyclop.setScaleY(1.5);
+        groupCyclop.setLayoutY(alturaSuelo-18);
         
+        //vida enemiga
         Rectangle rectangleEnemyHP = new Rectangle(0,alturaSuelo,enemyHP/2,6);
-        rectangleEnemyHP.setFill(Color.RED);
+        Rectangle rectangleFondoEnemyHP = new Rectangle(0,alturaSuelo,enemyHP/2,6);
+        rectangleFondoEnemyHP.setFill(Color.RED);
+        rectangleEnemyHP.setFill(Color.GREEN);
         //groupEnemy.getChildren().add(rectangleEnemyHP);
 
-        //HP
-        Rectangle rectangleHP = new Rectangle(60,15,hp,15);
+        //Vida
+        Rectangle rectangleHP = new Rectangle(60,15,hero.getVida(),15);
         rectangleHP.setFill(Color.GREEN);
         Text textHP = new Text("HP:");
         textHP.setFill(Color.GREEN);
@@ -254,25 +266,38 @@ public class Main extends Application {
                     
                 
                 if (enemy == true) {
-                    System.out.println(tocadoSpider);
+                    //System.out.println(tocado);
                     if (ataque == true) {
-                        Shape shapeColision = Shape.intersect(rectangleAtaque,rectangleSpider);
-                        boolean colisionVacia = shapeColision.getBoundsInLocal().isEmpty();
-                        if (colisionVacia == false) {
+                        boolean colisionVaciaSpider = colisionAtaque(rectangleAtaque,rectangleSpider);
+                        boolean colisionVaciaBat = colisionAtaque(rectangleAtaque,rectangleBat);
+                        boolean colisionVaciaCyclop = colisionAtaque(rectangleAtaque, rectangleCyclop);
+                        if (colisionVaciaSpider == false) {
                             enemyHP -= 34;
-                            tocadoSpider = 10;
+                            tocado = 10;
+                        } 
+                        if (colisionVaciaBat == false) {
+                            enemyHP -= 60;
+                            tocado = 10;
+                        }
+                        if (colisionVaciaCyclop == false) {
+                            enemyHP -= 25;
+                            tocado = 10;
                         }
                         
-                        
-                        if (tocadoSpider > 0){
-                                tocadoSpider -= 1;
+                        if (tocado > 0){
+                            System.out.println(tocado);
+                                groupEnemy.setOpacity(0.50);
+                                tocado -= 1;
                                 enemyX += 10;
-                                groupEnemy.setLayoutX(enemyX);  
-                            
-                        } else{
+                                groupEnemy.setLayoutX(enemyX);
+                                if (tocado <= 2) {
+                                    groupEnemy.setOpacity(1.00);
+                                } 
+                        }
+                        else{
                             enemyX -= enemySpeed;
                             groupEnemy.setLayoutX(enemyX);
-                            
+                        
                         }
                     } else {
                         enemyX -= enemySpeed;
@@ -283,38 +308,39 @@ public class Main extends Application {
                     
                     colision(rectangleHeroe, rectangleSpider,2);
                     colision(rectangleHeroe, rectangleBat,1);
-                    
+                    colision(rectangleHeroe, rectangleCyclop,5);
 
-
-                    if (enemyX == -10 || enemyHP <= 0) {
+                    if (enemyX <= -10 || enemyHP <= 0) {
                         groupEnemy.getChildren().clear();
                         enemyHP = 100;
                         enemy = false;
                         enemyX = 640;
+                        groupEnemy.setOpacity(1.00);
+                        tocado = 0;
                     }
                 }
                 
-                rectangleHP.setWidth(hp);
+                rectangleHP.setWidth(hero.getVida());
                 
-                if(suelo1X == -bgWidth) {
-                    suelo1X = bgWidth;
+                if(suelo1X == -ANCHO_FONDO) {
+                    suelo1X = ANCHO_FONDO;
                     suelo1.setX(suelo1X);
 
 
                     
-                } else if (suelo2X == -bgWidth) {
-                    suelo2X = bgWidth;
+                } else if (suelo2X == -ANCHO_FONDO) {
+                    suelo2X = ANCHO_FONDO;
                     suelo2.setX(suelo2X);
 
 
                 }
-                if(sky1X == -bgWidth) {
-                    sky1X = bgWidth;
+                if(sky1X == -ANCHO_FONDO) {
+                    sky1X = ANCHO_FONDO;
                     sky1.setX(sky1X);
 
                     
-                } else if (sky2X == -bgWidth) {
-                    sky2X = bgWidth;
+                } else if (sky2X == -ANCHO_FONDO) {
+                    sky2X = ANCHO_FONDO;
                     sky2.setX(sky2X);
 
                 }
@@ -322,13 +348,14 @@ public class Main extends Application {
                 if (distancia/10 % distanciaEnemigos == 0 && distancia != 0 && enemy == false) {
 
                     Random randomNum = new Random();
-                    int enemyNum = randomNum.nextInt(1);
+                    int enemyNum = randomNum.nextInt(3);
                     System.out.println(enemyNum);
                     switch (enemyNum) {
-                        case 0: groupEnemy.getChildren().addAll(groupSpider,rectangleEnemyHP);
-                                
+                        case 0: groupEnemy.getChildren().addAll(groupSpider, rectangleFondoEnemyHP,rectangleEnemyHP);
                                 break;
-                        case 1: groupEnemy.getChildren().addAll(groupBat,rectangleEnemyHP);
+                        case 1: groupEnemy.getChildren().addAll(groupBat,rectangleFondoEnemyHP,rectangleEnemyHP);
+                                break;
+                        case 2: groupEnemy.getChildren().addAll(groupCyclop,rectangleFondoEnemyHP,rectangleEnemyHP);
                                 break;
                     }
                     
@@ -336,15 +363,14 @@ public class Main extends Application {
                     enemy = true;
                 }
                     
-                if (hp <= 0) {
+                if (hero.getVida() <= 0) {
                     System.out.println("muerto");
                     root.getChildren().add(vbox);
                 }
                 
             };
         };
-        
-        
+
         animation.start();
         
         //Teclado
@@ -371,7 +397,7 @@ public class Main extends Application {
                 run.setVisible(true);
                 attack.setVisible(false);
                 currentSpeed = 0;
-                if (heroCurrentX <= 2){
+                if (heroCurrentX <= 1){
                     heroeCurrentSpeed = 0;
                 } else {
                     heroeCurrentSpeed = speed;
