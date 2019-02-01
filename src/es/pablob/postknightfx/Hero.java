@@ -23,4 +23,8 @@ public class Hero {
     public void setVida(int x) {
         vida = x;
     };
+    
+    public void setX(int x) {
+        int posX = x;
+    };
 }

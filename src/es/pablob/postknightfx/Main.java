@@ -82,13 +82,6 @@ public class Main extends Application {
         return colisionVacia;
     }
 
-    
-//    public Rectangle rectangleEnemy(String nombre) {
-//        
-//        Rectangle rectangle = new Rectangle(0,46,36,36);
-//        return rectangle;
-//    }
-
     @Override
     public void start(Stage primaryStage) {
         int windowWidth = 640;
@@ -100,7 +93,6 @@ public class Main extends Application {
         int alturaSuelo = 290;
         
         ataque = false;
-        
         
         this.reinicio();
         
@@ -121,13 +113,7 @@ public class Main extends Application {
         Image imageSky = new Image(getClass().getResourceAsStream("images/cielo.png"));
         ImageView sky1 = new ImageView(imageSky);
         ImageView sky2 = new ImageView(imageSky);
-        
-//        Hero hero = new Hero();
-//        hero.mover();
-//        hero.herir();
 
-        
-        
         //HEROE:
         //heroe corriendo
         Image runGif = new Image(getClass().getResourceAsStream("images/run.gif"));
@@ -171,6 +157,7 @@ public class Main extends Application {
         
         Group groupSpider = new Group(rectangleSpider,spider );
         groupSpider.setLayoutY(alturaSuelo+15);
+        
         //murcielago
         Image gifBat = new Image(getClass().getResourceAsStream("images/bat.gif"));
         ImageView bat = new ImageView(gifBat);
@@ -194,9 +181,9 @@ public class Main extends Application {
         //vida enemiga
         Rectangle rectangleEnemyHP = new Rectangle(0,alturaSuelo,enemyHP/2,6);
         Rectangle rectangleFondoEnemyHP = new Rectangle(0,alturaSuelo,enemyHP/2,6);
-        rectangleFondoEnemyHP.setFill(Color.RED);
-        rectangleEnemyHP.setFill(Color.GREEN);
-        //groupEnemy.getChildren().add(rectangleEnemyHP);
+        rectangleFondoEnemyHP.setFill(Color.BLACK);
+        rectangleEnemyHP.setFill(Color.RED);
+        
 
         //Vida
         Rectangle rectangleHP = new Rectangle(60,15,hero.getVida(),15);
@@ -211,7 +198,7 @@ public class Main extends Application {
         //distancia
         Text textDistancia = new Text("0.0  m");
         textDistancia.setX(windowWidth-80);
-        textDistancia.setFill(Color.RED);
+        textDistancia.setFill(Color.DARKRED);
         //textDistancia.setStroke(Color.WHITE);
         textDistancia.setY(30);
         textDistancia.setFont(Font.font(22));
@@ -283,26 +270,19 @@ public class Main extends Application {
                             enemyHP -= 25;
                             tocado = 10;
                         }
-                        
-                        if (tocado > 0){
+                    }
+                    if (tocado > 0){
                             System.out.println(tocado);
                                 groupEnemy.setOpacity(0.50);
                                 tocado -= 1;
                                 enemyX += 10;
                                 groupEnemy.setLayoutX(enemyX);
-                                if (tocado <= 2) {
-                                    groupEnemy.setOpacity(1.00);
-                                } 
-                        }
-                        else{
+                    } 
+                    else{
                             enemyX -= enemySpeed;
                             groupEnemy.setLayoutX(enemyX);
-                        
-                        }
-                    } else {
-                        enemyX -= enemySpeed;
-                        groupEnemy.setLayoutX(enemyX);
-                    }
+                            groupEnemy.setOpacity(1.00);
+                    } 
 
                     rectangleEnemyHP.setWidth(enemyHP/2);
                     
