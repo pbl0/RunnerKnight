@@ -15,16 +15,13 @@ package es.pablob.postknightfx;
  */
 public class Hero {
     int vida = 200;
-    
-    public int getVida() {
-        return vida;
-    }
+    int posX;
     
     public void setVida(int x) {
         vida = x;
     };
     
     public void setX(int x) {
-        int posX = x;
+        posX = x;
     };
 }
