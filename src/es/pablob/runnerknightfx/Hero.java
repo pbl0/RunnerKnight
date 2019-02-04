@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package es.pablob.postknightfx;
+package es.pablob.runnerknightfx;
 //import javafx.scene.Group;
 //import javafx.scene.image.Image;
 

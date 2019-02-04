@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package es.pablob.postknightfx;
+package es.pablob.runnerknightfx;
 
 
 //import java.io.File;
@@ -131,7 +131,7 @@ public class Main extends Application {
         
         Pane root = new Pane();
         Scene scene = new Scene(root, windowWidth, windowHeight, Color.CYAN);
-        primaryStage.setTitle("Postknight");
+        primaryStage.setTitle("RunnerKnight");
         primaryStage.setScene(scene);
         primaryStage.show();
         

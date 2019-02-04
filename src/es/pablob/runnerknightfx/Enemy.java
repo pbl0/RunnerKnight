@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package es.pablob.postknightfx;
+package es.pablob.runnerknightfx;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
