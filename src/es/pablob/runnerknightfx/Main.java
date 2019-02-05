@@ -6,10 +6,15 @@
 package es.pablob.runnerknightfx;
 
 
-//import java.io.File;
+
+//import com.sun.javafx.perf.PerformanceTracker;
+import java.io.File;
 import java.util.Random;
-import javafx.animation.AnimationTimer;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -21,10 +26,14 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
+import javafx.scene.shape.Circle;
 
 /**
  *
@@ -51,6 +60,7 @@ public class Main extends Application {
     int enemyHP;
     int enemySpeed;
     int enemyX;
+    
     boolean ataque;
     int tocado = 0;
     
@@ -99,8 +109,8 @@ public class Main extends Application {
         return colisionVacia;
     }
     
-    public void colisionPocion(Rectangle rectHero, Rectangle rectPocion){
-        Shape shapeColision = Shape.intersect(rectHero,rectPocion);
+    public void colisionPocion(Rectangle rectHero, Circle circlePocion){
+        Shape shapeColision = Shape.intersect(rectHero,circlePocion);
         boolean colisionVacia = shapeColision.getBoundsInLocal().isEmpty();
         if (colisionVacia == false) {
             hero.setVida(hero.vida+30);
@@ -118,12 +128,8 @@ public class Main extends Application {
         int windowWidth = 640;
         int windowHeight = 480;
         double skySpeed = 0.5;
-//        int hero.width = 88;
-//        int hero.height = 64;
         int heroePosX = 200;
         int alturaSuelo = 290;
-        
-        
         
         ataque = false;
         
@@ -136,13 +142,11 @@ public class Main extends Application {
         primaryStage.show();
         
         //FONDO:
+        //suelo
         Image imageSuelo = new Image(getClass().getResourceAsStream("images/suelo.png"));
         ImageView suelo1 = new ImageView(imageSuelo);
         ImageView suelo2 = new ImageView(imageSuelo);
-        //Group groupSuelo = new Group(suelo1, suelo2);
-        //System.out.println(imageSuelo.getWidth());
-        
-        
+        //cielo
         Image imageSky = new Image(getClass().getResourceAsStream("images/cielo.png"));
         ImageView sky1 = new ImageView(imageSky);
         ImageView sky2 = new ImageView(imageSky);
@@ -174,9 +178,6 @@ public class Main extends Application {
          
         //ENEMIGOS:
         //araña:
-        //Image gifSpider = new Image(getClass().getResourceAsStream("images/spider.gif"));
-        //ImageView spider = new ImageView(gifSpider);
-        
         Enemy enemySpider = new Enemy();
  
         enemySpider.setDmg(2);
@@ -186,16 +187,13 @@ public class Main extends Application {
         Group groupSpider = new Group(rectangleSpider,spider);
         groupSpider.setLayoutY(alturaSuelo+15);
         
+        
+        //murcielago
         Enemy enemyBat = new Enemy();
         enemyBat.setDmg(1);
         ImageView bat = enemyBat.setImage("images/bat.gif");
-        //murcielago
-        //Image gifBat = new Image(getClass().getResourceAsStream("images/bat.gif"));
-        //ImageView bat = new ImageView(gifBat);
-        
         Rectangle rectangleBat = new Rectangle(0,46,36,36);
         rectangleBat.setVisible(false);
-        
         Group groupBat = new Group(rectangleBat, bat);
         groupBat.setLayoutY(alturaSuelo-36);
         
@@ -203,9 +201,6 @@ public class Main extends Application {
         Enemy enemyCyclop = new Enemy();
         enemyCyclop.setDmg(5);
         ImageView cyclop = enemyCyclop.setImage("images/cyclops.gif");
-        
-//        Image gifCyclop = new Image(getClass().getResourceAsStream("images/cyclops.gif"));
-//        ImageView cyclop = new ImageView(gifCyclop);
         Rectangle rectangleCyclop = new Rectangle(20,26,26,38);
         rectangleCyclop.setVisible(false);
         Group groupCyclop = new Group(rectangleCyclop, cyclop);
@@ -234,22 +229,27 @@ public class Main extends Application {
         Text textDistancia = new Text();
         textDistancia.setX(windowWidth-100);
         textDistancia.setFill(Color.DARKRED);
-        
-        //textDistancia.setStroke(Color.WHITE);
         textDistancia.setY(30);
         textDistancia.setFont(Font.font(22));
         
         //pocion:
-        Image imagePocion = new Image(getClass().getResourceAsStream("images/pocion_roja.png"));
-        ImageView pocion = new ImageView(imagePocion);
-        Rectangle rectPocion = new Rectangle(16,16);
-        rectPocion.setVisible(false);
+        Rectangle rectangle1 = new Rectangle(95,74,10,11);
         
+        Rectangle rectangle2 = new Rectangle(90,67,20,7);
+        Circle circlePotion = new Circle(100,100,16);
+        
+        circlePotion.setFill(Color.valueOf("#d40c0c"));
+        rectangle1.setFill(Color.LIGHTBLUE);
+        rectangle2.setFill(Color.BROWN);
+        
+        circlePotion.setStroke(Color.BLACK);
+        rectangle1.setStroke(Color.BLACK);
+        rectangle2.setStroke(Color.BLACK);
 
         groupPocion = new Group();
-        groupPocion.setScaleX(2.2);
-        groupPocion.setScaleY(2.2);
-        groupPocion.setLayoutY(alturaSuelo+36);
+        groupPocion.setScaleX(0.8);
+        groupPocion.setScaleY(0.8);
+        groupPocion.setLayoutY(alturaSuelo-50);
         groupPocion.setLayoutX(pocionX);
         
         
@@ -266,164 +266,166 @@ public class Main extends Application {
         vbox.setPrefSize(root.getWidth(), root.getHeight());
         
         Group groupHUD = new Group(groupHP, textDistancia);
+
+        root.getChildren().addAll(sky1, sky2, suelo1, suelo2,groupHero,groupHUD,groupPocion, groupEnemy);
         
-        root.getChildren().addAll(sky1, sky2, suelo1, suelo2,groupHero,groupHUD, groupEnemy,groupPocion);
-        
-        
-        
-        AnimationTimer animation = new AnimationTimer() {
-            @Override
-            public void handle(long now) { 
-                //System.out.println(distancia/10);
-                //System.out.println(hero.vida);
-                distancia += currentSpeed/2;
-                suelo1.setX(suelo1X);
-                suelo2.setX(suelo2X);
-                
-                sky1.setX(sky1X);
-                sky2.setX(sky2X);
-                
-                groupHero.setLayoutX(hero.posX);
-                
-                hero.posX -= heroCurrentSpeed;
-                
-                suelo1X -= currentSpeed;
-                suelo2X -= currentSpeed;
-                
-                sky1X -= skySpeed;
-                sky2X -= skySpeed;
-                
-                textDistancia.setText(distancia/10+" m");
-                
-                switch (Math.round(distancia/10)) {
-                    case 50:
-                        distanciaEnemigos = 15;
-                        break;
-                    case 100:
-                        distanciaEnemigos = 10;
-                        break;
-                    case 150:
-                        distanciaEnemigos = 5;
-                        break;
-
-                }
-
-                    
-                
-                if (enemyBool == true) {
-                    //System.out.println(tocado);
-                    if (ataque == true) {
-                        boolean colisionVaciaSpider = colisionAtaque(hero.rectAtaque,rectangleSpider);
-                        boolean colisionVaciaBat = colisionAtaque(hero.rectAtaque,rectangleBat);
-                        boolean colisionVaciaCyclop = colisionAtaque(hero.rectAtaque, rectangleCyclop);
-                        if (colisionVaciaSpider == false) {
-                            enemyHP -= 34;
-                            tocado = 10;
-                        } 
-                        if (colisionVaciaBat == false) {
-                            enemyHP -= 60;
-                            tocado = 10;
-                        }
-                        if (colisionVaciaCyclop == false) {
-                            enemyHP -= 25;
-                            tocado = 10;
-                        }
-                    }
-                    if (tocado > 0){
-                            //System.out.println(tocado);
-                                groupEnemy.setOpacity(0.50);
-                                tocado -= 1;
-                                enemyX += 10;
-                                groupEnemy.setLayoutX(enemyX);
-                    } 
-                    else{
-                            enemyX -= enemySpeed;
-                            groupEnemy.setLayoutX(enemyX);
-                            groupEnemy.setOpacity(1.00);
-                    } 
-
-                    rectangleEnemyHP.setWidth(enemyHP/2);
-                    
-                    colisionDmg(hero.rect, rectangleSpider,enemySpider.dmgGive);
-                    colisionDmg(hero.rect, rectangleBat,enemyBat.dmgGive);
-                    colisionDmg(hero.rect, rectangleCyclop,enemyCyclop.dmgGive);
-
-                    if (enemyX <= -10 || enemyHP <= 0) {
-                        groupEnemy.getChildren().clear();
-                        enemyHP = 100;
-                        enemyBool = false;
-                        enemyX = 640;
-                        groupEnemy.setOpacity(1.00);
-                        tocado = 0;
-                    }
-                }
-
-                rectangleHP.setWidth(hero.vida);
-                
-                if(suelo1X == -ANCHO_FONDO) {
-                    suelo1X = ANCHO_FONDO;
+        Timeline timeline = new Timeline(
+            new KeyFrame(Duration.seconds(0.017), new EventHandler<ActionEvent>() {
+                public void handle(ActionEvent ae) { 
+                    //System.out.println(distancia/10);
+                    //System.out.println(hero.vida);
+                    //PerformanceTracker perfTracker = PerformanceTracker.getSceneTracker(scene);
+                    //System.out.println(perfTracker.getInstantFPS());
+                    distancia += currentSpeed/2;
                     suelo1.setX(suelo1X);
-
-
-                    
-                } else if (suelo2X == -ANCHO_FONDO) {
-                    suelo2X = ANCHO_FONDO;
                     suelo2.setX(suelo2X);
 
-
-                }
-                if(sky1X == -ANCHO_FONDO) {
-                    sky1X = ANCHO_FONDO;
                     sky1.setX(sky1X);
-
-                    
-                } else if (sky2X == -ANCHO_FONDO) {
-                    sky2X = ANCHO_FONDO;
                     sky2.setX(sky2X);
 
-                }
-                Random randomNum = new Random();
-                if (distancia/10 % distanciaEnemigos == 0 && distancia != 0 && enemyBool == false) {
+                    groupHero.setLayoutX(hero.posX);
 
-                    
-                    int enemyNum = randomNum.nextInt(3);
-                    //System.out.println(enemyNum);
-                    switch (enemyNum) {
-                        case 0: groupEnemy.getChildren().addAll(groupSpider, rectangleFondoEnemyHP,rectangleEnemyHP);
-                                break;
-                        case 1: groupEnemy.getChildren().addAll(groupBat,rectangleFondoEnemyHP,rectangleEnemyHP);
-                                break;
-                        case 2: groupEnemy.getChildren().addAll(groupCyclop,rectangleFondoEnemyHP,rectangleEnemyHP);
-                                break;
+                    hero.posX -= heroCurrentSpeed;
+
+                    suelo1X -= currentSpeed;
+                    suelo2X -= currentSpeed;
+
+                    sky1X -= skySpeed;
+                    sky2X -= skySpeed;
+
+                    textDistancia.setText(distancia/10+" m");
+
+                    switch (Math.round(distancia/10)) {
+                        case 50:
+                            distanciaEnemigos = 15;
+                            break;
+                        case 100:
+                            distanciaEnemigos = 10;
+                            break;
+                        case 150:
+                            distanciaEnemigos = 5;
+                            break;
+
                     }
-                    groupEnemy.setLayoutX(enemyX);
-                    enemyBool = true;
-                }
-                    
-                if (hero.vida <= 0 && vivo == true) {
-                    //System.out.println("muerto");
-                    root.getChildren().add(vbox);
-                    vivo = false;
-                }
-                if (distancia/10 % 100 == 0 && distancia != 0) {
-                    
-                    groupPocion.getChildren().addAll(rectPocion, pocion );
-                    groupPocion.setLayoutX(pocionX);
-                    pocionBool = true;
-                    //System.out.println(pocionBool);
-                    
-                }
 
-                if (pocionBool == true)  {
-                    pocionX -= currentSpeed;
-                    groupPocion.setLayoutX(pocionX);
-                    colisionPocion(hero.rect,rectPocion);
-                    
-                }
-            };
-        };
 
-        animation.start();
+
+                    if (enemyBool == true) {
+                        //System.out.println(tocado);
+                        if (ataque == true) {
+                            boolean colisionVaciaSpider = colisionAtaque(hero.rectAtaque,rectangleSpider);
+                            boolean colisionVaciaBat = colisionAtaque(hero.rectAtaque,rectangleBat);
+                            boolean colisionVaciaCyclop = colisionAtaque(hero.rectAtaque, rectangleCyclop);
+                            if (colisionVaciaSpider == false) {
+                                enemyHP -= 34;
+                                tocado = 10;
+                            } 
+                            if (colisionVaciaBat == false) {
+                                enemyHP -= 60;
+                                tocado = 10;
+                            }
+                            if (colisionVaciaCyclop == false) {
+                                enemyHP -= 25;
+                                tocado = 10;
+                            }
+                        }
+                        if (tocado > 0){
+                                //System.out.println(tocado);
+                                    groupEnemy.setOpacity(0.50);
+                                    tocado -= 1;
+                                    enemyX += 10;
+                                    groupEnemy.setLayoutX(enemyX);
+                        } 
+                        else{
+                                enemyX -= enemySpeed;
+                                groupEnemy.setLayoutX(enemyX);
+                                groupEnemy.setOpacity(1.00);
+                        } 
+
+                        rectangleEnemyHP.setWidth(enemyHP/2);
+
+                        colisionDmg(hero.rect, rectangleSpider,enemySpider.dmgGive);
+                        colisionDmg(hero.rect, rectangleBat,enemyBat.dmgGive);
+                        colisionDmg(hero.rect, rectangleCyclop,enemyCyclop.dmgGive);
+
+                        if (enemyX <= -10 || enemyHP <= 0) {
+                            groupEnemy.getChildren().clear();
+                            enemyHP = 100;
+                            enemyBool = false;
+                            enemyX = 640;
+                            groupEnemy.setOpacity(1.00);
+                            tocado = 0;
+                        }
+                    }
+
+                    rectangleHP.setWidth(hero.vida);
+
+                    if(suelo1X == -ANCHO_FONDO) {
+                        suelo1X = ANCHO_FONDO;
+                        suelo1.setX(suelo1X);
+
+
+
+                    } else if (suelo2X == -ANCHO_FONDO) {
+                        suelo2X = ANCHO_FONDO;
+                        suelo2.setX(suelo2X);
+
+
+                    }
+                    if(sky1X == -ANCHO_FONDO) {
+                        sky1X = ANCHO_FONDO;
+                        sky1.setX(sky1X);
+
+
+                    } else if (sky2X == -ANCHO_FONDO) {
+                        sky2X = ANCHO_FONDO;
+                        sky2.setX(sky2X);
+
+                    }
+                    Random randomNum = new Random();
+                    if (distancia/10 % distanciaEnemigos == 0 && distancia != 0 && enemyBool == false) {
+
+
+                        int enemyNum = randomNum.nextInt(3);
+                        //System.out.println(enemyNum);
+                        switch (enemyNum) {
+                            case 0: groupEnemy.getChildren().addAll(groupSpider, rectangleFondoEnemyHP,rectangleEnemyHP);
+                                    break;
+                            case 1: groupEnemy.getChildren().addAll(groupBat,rectangleFondoEnemyHP,rectangleEnemyHP);
+                                    break;
+                            case 2: groupEnemy.getChildren().addAll(groupCyclop,rectangleFondoEnemyHP,rectangleEnemyHP);
+                                    break;
+                        }
+                        groupEnemy.setLayoutX(enemyX);
+                        enemyBool = true;
+                    }
+
+                    if (hero.vida <= 0 && vivo == true) {
+                        //System.out.println("muerto");
+                        root.getChildren().add(vbox);
+                        vivo = false;
+                    }
+                    if (distancia/10 % 100 == 0 && distancia != 0) {
+
+                        groupPocion.getChildren().addAll(circlePotion,rectangle1,rectangle2);
+                        groupPocion.setLayoutX(pocionX);
+                        pocionBool = true;
+                        //System.out.println(pocionBool);
+
+                    }
+
+                    if (pocionBool == true)  {
+                        pocionX -= currentSpeed;
+                        groupPocion.setLayoutX(pocionX);
+                        colisionPocion(hero.rect,circlePotion);
+
+                    }
+                }
+            })
+        );       
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();        
+        
         
         //Teclado
         scene.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
