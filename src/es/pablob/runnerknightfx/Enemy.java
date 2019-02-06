@@ -7,7 +7,6 @@ package es.pablob.runnerknightfx;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.shape.Rectangle;
 
 /**
  *
@@ -21,13 +20,13 @@ public class Enemy {
     
     public ImageView setImage(String file){
         Image gifEnemy = new Image(getClass().getResourceAsStream(file));
-        ImageView enemy = new ImageView(gifEnemy);
-        return enemy;
+        ImageView enemyImage = new ImageView(gifEnemy);
+        return enemyImage;
     }
     
     public void setX(int x) {
         posX = x;
-    };
+    }
     
     public void setDmg(int x) { 
         dmgGive = x;

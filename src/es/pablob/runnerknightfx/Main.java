@@ -8,7 +8,6 @@ package es.pablob.runnerknightfx;
 
 
 //import com.sun.javafx.perf.PerformanceTracker;
-import java.io.File;
 import java.util.Random;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -26,8 +25,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.AudioClip;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
@@ -42,37 +40,27 @@ import javafx.scene.shape.Circle;
 public class Main extends Application {
     
     final int ANCHO_FONDO = 1024;
-    final int SPEED = 2;
-    
+    final int SPEED = 4;
     int suelo1X;
     int suelo2X;
     double sky1X;
     double sky2X;
-    
     int currentSpeed;
     int heroCurrentSpeed;
-    
     float distancia;
-    
     Group groupEnemy = new Group();
     boolean enemyBool;
     int distanciaEnemigos;
     int enemyHP;
     int enemySpeed;
     int enemyX;
-    
     boolean ataque;
     int tocado = 0;
-    
     Group groupPocion = new Group();
     boolean pocionBool;
     int pocionX;
     boolean vivo;
-    
     Hero hero = new Hero();
-    
-    
-    
     
     public void reinicio() {
         
@@ -94,6 +82,7 @@ public class Main extends Application {
         hero.setVida(200);
         hero.posX = 10;
         vivo = true;
+        hero.group.setVisible(true);
         
     }
     public void colisionDmg(Rectangle rectHero, Rectangle rectEnemy, int dmg) {
@@ -117,11 +106,8 @@ public class Main extends Application {
             groupPocion.getChildren().clear();
             pocionX = 640;
             pocionBool = false;
-        
         }
     }
-
-
 
     @Override
     public void start(Stage primaryStage) {
@@ -130,6 +116,10 @@ public class Main extends Application {
         double skySpeed = 0.5;
         int heroePosX = 200;
         int alturaSuelo = 290;
+        
+        
+        //AudioClip music = new AudioClip(getClass().getResource("sounds/music.mp3").toString());
+        //music.play();
         
         ataque = false;
         
@@ -171,8 +161,9 @@ public class Main extends Application {
         hero.rectAtaque.setVisible(false);
         
         //grupo heroe
-        Group groupHero = new Group();
-        groupHero.getChildren().addAll(hero.rectAtaque, hero.rect, hero.run, hero.idle, hero.attack);
+        Group groupHero = hero.group;
+        //Group groupHero = new Group();
+        //groupHero.getChildren().addAll(hero.rectAtaque, hero.rect, hero.run, hero.idle, hero.attack);
         groupHero.setLayoutX(hero.posX);
         groupHero.setLayoutY(alturaSuelo);
          
@@ -186,8 +177,7 @@ public class Main extends Application {
         rectangleSpider.setVisible(false);
         Group groupSpider = new Group(rectangleSpider,spider);
         groupSpider.setLayoutY(alturaSuelo+15);
-        
-        
+ 
         //murcielago
         Enemy enemyBat = new Enemy();
         enemyBat.setDmg(1);
@@ -195,6 +185,8 @@ public class Main extends Application {
         Rectangle rectangleBat = new Rectangle(0,46,36,36);
         rectangleBat.setVisible(false);
         Group groupBat = new Group(rectangleBat, bat);
+        groupBat.setScaleX(0.8);
+        groupBat.setScaleY(0.8);
         groupBat.setLayoutY(alturaSuelo-36);
         
         //ciclope
@@ -213,7 +205,6 @@ public class Main extends Application {
         Rectangle rectangleFondoEnemyHP = new Rectangle(0,alturaSuelo,enemyHP/2,6);
         rectangleFondoEnemyHP.setFill(Color.BLACK);
         rectangleEnemyHP.setFill(Color.valueOf("#d40c0c"));
-        
 
         //Vida
         Rectangle rectangleHP = new Rectangle(60,15,hero.vida,15);
@@ -252,20 +243,19 @@ public class Main extends Application {
         groupPocion.setLayoutY(alturaSuelo-50);
         groupPocion.setLayoutX(pocionX);
         
+        Group groupHUD = new Group(groupHP, textDistancia);
         
         //GameOver
         VBox vbox = new VBox();
         Text textGameOver = new Text("GAME OVER");
         textGameOver.setFont(Font.font(50));
         textGameOver.setFill(Color.DARKRED);
-        Text textReinicio = new Text("Pulsa 'R' para reinciar");
+        Text textReinicio = new Text("Pulsa 'R' para reiniciar");
         textReinicio.setFont(Font.font(25));
         textReinicio.setFill(Color.DARKRED);
         vbox.getChildren().addAll(textGameOver, textReinicio);
         vbox.setAlignment(Pos.CENTER);
         vbox.setPrefSize(root.getWidth(), root.getHeight());
-        
-        Group groupHUD = new Group(groupHP, textDistancia);
 
         root.getChildren().addAll(sky1, sky2, suelo1, suelo2,groupHero,groupHUD,groupPocion, groupEnemy);
         
@@ -276,16 +266,17 @@ public class Main extends Application {
                     //System.out.println(hero.vida);
                     //PerformanceTracker perfTracker = PerformanceTracker.getSceneTracker(scene);
                     //System.out.println(perfTracker.getInstantFPS());
-                    distancia += currentSpeed/2;
+                    if (vivo == true) {
+                        distancia += currentSpeed/2;
+                        hero.posX -= heroCurrentSpeed;
+                        groupHero.setLayoutX(hero.posX);
+                    }
+                    
                     suelo1.setX(suelo1X);
                     suelo2.setX(suelo2X);
 
                     sky1.setX(sky1X);
                     sky2.setX(sky2X);
-
-                    groupHero.setLayoutX(hero.posX);
-
-                    hero.posX -= heroCurrentSpeed;
 
                     suelo1X -= currentSpeed;
                     suelo2X -= currentSpeed;
@@ -307,8 +298,6 @@ public class Main extends Application {
                             break;
 
                     }
-
-
 
                     if (enemyBool == true) {
                         //System.out.println(tocado);
@@ -364,18 +353,14 @@ public class Main extends Application {
                         suelo1X = ANCHO_FONDO;
                         suelo1.setX(suelo1X);
 
-
-
                     } else if (suelo2X == -ANCHO_FONDO) {
                         suelo2X = ANCHO_FONDO;
                         suelo2.setX(suelo2X);
-
 
                     }
                     if(sky1X == -ANCHO_FONDO) {
                         sky1X = ANCHO_FONDO;
                         sky1.setX(sky1X);
-
 
                     } else if (sky2X == -ANCHO_FONDO) {
                         sky2X = ANCHO_FONDO;
@@ -384,9 +369,9 @@ public class Main extends Application {
                     }
                     Random randomNum = new Random();
                     if (distancia/10 % distanciaEnemigos == 0 && distancia != 0 && enemyBool == false) {
-
-
+                        enemyBool = true;
                         int enemyNum = randomNum.nextInt(3);
+                        
                         //System.out.println(enemyNum);
                         switch (enemyNum) {
                             case 0: groupEnemy.getChildren().addAll(groupSpider, rectangleFondoEnemyHP,rectangleEnemyHP);
@@ -397,15 +382,19 @@ public class Main extends Application {
                                     break;
                         }
                         groupEnemy.setLayoutX(enemyX);
-                        enemyBool = true;
+                        
                     }
 
-                    if (hero.vida <= 0 && vivo == true) {
-                        //System.out.println("muerto");
-                        root.getChildren().add(vbox);
-                        vivo = false;
+                    if (hero.vida <= 0) {
+                        if (vivo == true) {
+                            //vbox.getChildren().add(textDistancia);
+                            root.getChildren().add(vbox);
+                            vivo = false;
+                        }
+                        currentSpeed = 1;
+                        groupHero.setVisible(false);
                     }
-                    if (distancia/10 % 100 == 0 && distancia != 0) {
+                    if (distancia/10 % 200 == 0 && distancia != 0) {
 
                         groupPocion.getChildren().addAll(circlePotion,rectangle1,rectangle2);
                         groupPocion.setLayoutX(pocionX);
@@ -424,7 +413,7 @@ public class Main extends Application {
             })
         );       
         timeline.setCycleCount(Timeline.INDEFINITE);
-        timeline.play();        
+        timeline.play();
         
         
         //Teclado
@@ -441,9 +430,7 @@ public class Main extends Application {
                 } else {
                     heroCurrentSpeed = 0;
                     currentSpeed = SPEED;
-                    //distancia +=1;
-                    
-                    enemySpeed = 4;
+                    enemySpeed = SPEED + 2;
                 }
             } else if(key.getCode()==KeyCode.LEFT) {
                 groupHero.setScaleX(-1);
@@ -466,8 +453,6 @@ public class Main extends Application {
             } else if(key.getCode()==KeyCode.R) {
                 this.reinicio();
                 root.getChildren().remove(vbox);
-                //System.out.println(randomNum.nextInt(100));
-                //System.out.println(rectangleHP.getWidth());
             }      
         });
         scene.addEventHandler(KeyEvent.KEY_RELEASED, (key) -> {
@@ -492,7 +477,7 @@ public class Main extends Application {
 
             }    
         });
-   
+        
     }
     
     /**

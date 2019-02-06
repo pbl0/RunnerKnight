@@ -5,15 +5,12 @@
  */
 
 package es.pablob.runnerknightfx;
-//import javafx.scene.Group;
-//import javafx.scene.image.Image;
 
+import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.shape.Rectangle;
 
-//import javafx.scene.image.ImageView;
-//import javafx.scene.shape.Rectangle;
 /**
  *
  * @author PC15
@@ -37,11 +34,16 @@ public class Hero {
     
     Rectangle rectAtaque = new Rectangle(45,8,32,56);
     
+    
+    Group group = new Group(run, idle, attack, rect, rectAtaque);
+    
     public void setVida(int x) {
         vida = x;
-    };
+    }
     
     public void setX(int x) {
         posX = x;
-    };
+    }
+    
+    
 }
