@@ -26,6 +26,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.AudioClip;
+import javafx.scene.media.MediaException;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
@@ -38,16 +39,20 @@ import javafx.scene.shape.Circle;
  * @author PC15
  */
 public class Main extends Application {
-    
+    //fondos
     final int ANCHO_FONDO = 1024;
-    final int SPEED = 4;
     int suelo1X;
     int suelo2X;
     double sky1X;
     double sky2X;
+    
+    //velocidades y distancia
+    final int SPEED = 4;
     int currentSpeed;
     int heroCurrentSpeed;
     float distancia;
+    
+    //enemigos
     Group groupEnemy = new Group();
     boolean enemyBool;
     int distanciaEnemigos;
@@ -56,35 +61,45 @@ public class Main extends Application {
     int enemyX;
     boolean ataque;
     int tocado = 0;
+    
+    //heroe
+    Hero hero = new Hero();
+    boolean vivo;
+    
+    //pocion
     Group groupPocion = new Group();
     boolean pocionBool;
     int pocionX;
-    boolean vivo;
-    Hero hero = new Hero();
     
+    //Reiniciar juego
     public void reinicio() {
         
         suelo1X = 0;
         suelo2X = ANCHO_FONDO;
         sky1X = 0;
         sky2X = ANCHO_FONDO;
+        
         distancia = 0;
         currentSpeed = 0;
         heroCurrentSpeed = 0;
-        enemyX = 640;
-        enemyHP = 100;
-        distanciaEnemigos = 20;
-        enemyBool = false;
-        groupEnemy.getChildren().clear();
-        groupPocion.getChildren().clear();
-        pocionX = enemyX;
-        pocionBool = false;
+        
         hero.setVida(200);
         hero.posX = 10;
         vivo = true;
         hero.group.setVisible(true);
         
+        groupEnemy.getChildren().clear();
+        enemyX = 640;
+        enemyHP = 100;
+        distanciaEnemigos = 20;
+        enemyBool = false;
+        
+        groupPocion.getChildren().clear();
+        pocionX = enemyX;
+        pocionBool = false;
+        
     }
+    //colision
     public void colisionDmg(Rectangle rectHero, Rectangle rectEnemy, int dmg) {
         Shape shapeColision = Shape.intersect(rectHero,rectEnemy);
         boolean colisionVacia = shapeColision.getBoundsInLocal().isEmpty();
@@ -92,12 +107,13 @@ public class Main extends Application {
             hero.setVida(hero.vida-dmg);
         } 
     }
+    //colision de ataque
     public boolean colisionAtaque(Rectangle rectHero, Rectangle rectEnemy) {
         Shape shapeColision = Shape.intersect(rectHero,rectEnemy);
         boolean colisionVacia = shapeColision.getBoundsInLocal().isEmpty();
         return colisionVacia;
     }
-    
+    //colision pocion
     public void colisionPocion(Rectangle rectHero, Circle circlePocion){
         Shape shapeColision = Shape.intersect(rectHero,circlePocion);
         boolean colisionVacia = shapeColision.getBoundsInLocal().isEmpty();
@@ -108,23 +124,30 @@ public class Main extends Application {
             pocionBool = false;
         }
     }
-
+    
     @Override
     public void start(Stage primaryStage) {
-        int windowWidth = 640;
-        int windowHeight = 480;
-        double skySpeed = 0.5;
-        int heroePosX = 200;
-        int alturaSuelo = 290;
-        
-        
-        //AudioClip music = new AudioClip(getClass().getResource("sounds/music.mp3").toString());
-        //music.play();
-        
-        ataque = false;
         
         this.reinicio();
         
+        
+        int windowWidth = 640;
+        int windowHeight = 480;
+        final double CIELO_SPEED = 0.5;
+        ataque = false;
+        
+        //posiciones
+        int heroePosX = 200;
+        int alturaSuelo = 290;
+        
+//        AudioClip music = new AudioClip(getClass().getResource("sounds/music.mp3").toString());
+//        try{
+//            music.play();
+//        } catch (Exception e) {
+//            System.out.println("A");  
+//        }
+        
+        //pane
         Pane root = new Pane();
         Scene scene = new Scene(root, windowWidth, windowHeight, Color.CYAN);
         primaryStage.setTitle("RunnerKnight");
@@ -143,18 +166,21 @@ public class Main extends Application {
 
         //HEROE:
         //heroe corriendo
-        hero.run.setFitWidth(hero.width);
-        hero.run.setFitHeight(hero.height);
-        hero.run.setVisible(false);
+        ImageView heroRun = hero.run;
+        heroRun.setFitWidth(hero.width);
+        heroRun.setFitHeight(hero.height);
+        heroRun.setVisible(false);
         
         //heroe parado
-        hero.idle.setFitHeight(hero.height);
-        hero.idle.setFitWidth(hero.width);
+        ImageView heroParado = hero.idle;
+        heroParado.setFitHeight(hero.height);
+        heroParado.setFitWidth(hero.width);
         
         //heroe atacando
-        hero.attack.setFitHeight(hero.height);
-        hero.attack.setFitWidth(hero.width);
-        hero.attack.setVisible(false);
+        ImageView heroAtaque = hero.attack;
+        heroAtaque.setFitHeight(hero.height);
+        heroAtaque.setFitWidth(hero.width);
+        heroAtaque.setVisible(false);
         
         //rectangulos para colisiones
         hero.rect.setVisible(false);
@@ -163,7 +189,7 @@ public class Main extends Application {
         //grupo heroe
         Group groupHero = hero.group;
         //Group groupHero = new Group();
-        //groupHero.getChildren().addAll(hero.rectAtaque, hero.rect, hero.run, hero.idle, hero.attack);
+        //groupHero.getChildren().addAll(hero.rectAtaque, hero.rect, heroRun, heroParado, heroAtaque);
         groupHero.setLayoutX(hero.posX);
         groupHero.setLayoutY(alturaSuelo);
          
@@ -224,18 +250,18 @@ public class Main extends Application {
         textDistancia.setFont(Font.font(22));
         
         //pocion:
-        Rectangle rectangle1 = new Rectangle(95,74,10,11);
+        Rectangle rectPotion1 = new Rectangle(95,74,10,11);
         
-        Rectangle rectangle2 = new Rectangle(90,67,20,7);
+        Rectangle rectPotion2 = new Rectangle(90,67,20,7);
         Circle circlePotion = new Circle(100,100,16);
         
         circlePotion.setFill(Color.valueOf("#d40c0c"));
-        rectangle1.setFill(Color.LIGHTBLUE);
-        rectangle2.setFill(Color.BROWN);
+        rectPotion1.setFill(Color.LIGHTBLUE);
+        rectPotion2.setFill(Color.BROWN);
         
         circlePotion.setStroke(Color.BLACK);
-        rectangle1.setStroke(Color.BLACK);
-        rectangle2.setStroke(Color.BLACK);
+        rectPotion1.setStroke(Color.BLACK);
+        rectPotion2.setStroke(Color.BLACK);
 
         groupPocion = new Group();
         groupPocion.setScaleX(0.8);
@@ -281,8 +307,8 @@ public class Main extends Application {
                     suelo1X -= currentSpeed;
                     suelo2X -= currentSpeed;
 
-                    sky1X -= skySpeed;
-                    sky2X -= skySpeed;
+                    sky1X -= CIELO_SPEED;
+                    sky2X -= CIELO_SPEED;
 
                     textDistancia.setText(distancia/10+" m");
 
@@ -293,7 +319,7 @@ public class Main extends Application {
                         case 100:
                             distanciaEnemigos = 10;
                             break;
-                        case 150:
+                        case 200:
                             distanciaEnemigos = 5;
                             break;
 
@@ -332,7 +358,7 @@ public class Main extends Application {
                         } 
 
                         rectangleEnemyHP.setWidth(enemyHP/2);
-
+                        
                         colisionDmg(hero.rect, rectangleSpider,enemySpider.dmgGive);
                         colisionDmg(hero.rect, rectangleBat,enemyBat.dmgGive);
                         colisionDmg(hero.rect, rectangleCyclop,enemyCyclop.dmgGive);
@@ -394,9 +420,9 @@ public class Main extends Application {
                         currentSpeed = 1;
                         groupHero.setVisible(false);
                     }
-                    if (distancia/10 % 200 == 0 && distancia != 0) {
+                    if (distancia/10 % 200 == 0 && distancia != 0 && pocionBool == false) {
 
-                        groupPocion.getChildren().addAll(circlePotion,rectangle1,rectangle2);
+                        groupPocion.getChildren().addAll(circlePotion,rectPotion1,rectPotion2);
                         groupPocion.setLayoutX(pocionX);
                         pocionBool = true;
                         //System.out.println(pocionBool);
@@ -420,9 +446,9 @@ public class Main extends Application {
         scene.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
             if(key.getCode()==KeyCode.RIGHT) {
                 groupHero.setScaleX(1);
-                hero.idle.setVisible(false);
-                hero.run.setVisible(true);
-                hero.attack.setVisible(false);
+                heroParado.setVisible(false);
+                heroRun.setVisible(true);
+                heroAtaque.setVisible(false);
                 if (hero.posX <= heroePosX) {
                     currentSpeed = 0;
                     heroCurrentSpeed =-SPEED;
@@ -434,9 +460,9 @@ public class Main extends Application {
                 }
             } else if(key.getCode()==KeyCode.LEFT) {
                 groupHero.setScaleX(-1);
-                hero.idle.setVisible(false);
-                hero.run.setVisible(true);
-                hero.attack.setVisible(false);
+                heroParado.setVisible(false);
+                heroRun.setVisible(true);
+                heroAtaque.setVisible(false);
                 currentSpeed = 0;
                 if (hero.posX <= 1){
                     heroCurrentSpeed = 0;
@@ -444,9 +470,9 @@ public class Main extends Application {
                     heroCurrentSpeed = SPEED;
                 }  
             } else if(key.getCode()==KeyCode.A) {
-                hero.idle.setVisible(false);
-                hero.run.setVisible(false);
-                hero.attack.setVisible(true);
+                heroParado.setVisible(false);
+                heroRun.setVisible(false);
+                heroAtaque.setVisible(true);
                 currentSpeed = 0;
                 heroCurrentSpeed = 0;
                 ataque = true;
@@ -457,20 +483,20 @@ public class Main extends Application {
         });
         scene.addEventHandler(KeyEvent.KEY_RELEASED, (key) -> {
             if(key.getCode()==KeyCode.RIGHT) {
-                hero.idle.setVisible(true);
-                hero.run.setVisible(false);
+                heroParado.setVisible(true);
+                heroRun.setVisible(false);
                 currentSpeed = 0;
                 heroCurrentSpeed = 0;
                 enemySpeed = 2;
             } else if(key.getCode()==KeyCode.LEFT) {
-                hero.idle.setVisible(true);
-                hero.run.setVisible(false);
+                heroParado.setVisible(true);
+                heroRun.setVisible(false);
                 currentSpeed = 0;
                 heroCurrentSpeed = 0;
             } else if(key.getCode()==KeyCode.A) {
-                hero.idle.setVisible(true);
-                hero.run.setVisible(false);
-                hero.attack.setVisible(false);
+                heroParado.setVisible(true);
+                heroRun.setVisible(false);
+                heroAtaque.setVisible(false);
                 ataque = false;
                 currentSpeed = 0;
                 heroCurrentSpeed = 0;
