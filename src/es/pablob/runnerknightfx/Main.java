@@ -25,8 +25,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
-import javafx.scene.media.AudioClip;
-import javafx.scene.media.MediaException;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
@@ -125,6 +123,8 @@ public class Main extends Application {
         }
     }
     
+
+    
     @Override
     public void start(Stage primaryStage) {
         
@@ -139,13 +139,6 @@ public class Main extends Application {
         //posiciones
         int heroePosX = 200;
         int alturaSuelo = 290;
-        
-//        AudioClip music = new AudioClip(getClass().getResource("sounds/music.mp3").toString());
-//        try{
-//            music.play();
-//        } catch (Exception e) {
-//            System.out.println("A");  
-//        }
         
         //pane
         Pane root = new Pane();
@@ -196,24 +189,20 @@ public class Main extends Application {
         //ENEMIGOS:
         //araña:
         Enemy enemySpider = new Enemy();
- 
         enemySpider.setDmg(2);
         ImageView spider = enemySpider.setImage("images/spider.gif");
         Rectangle rectangleSpider = new Rectangle(12,16,36,36);
-        rectangleSpider.setVisible(false);
-        Group groupSpider = new Group(rectangleSpider,spider);
-        groupSpider.setLayoutY(alturaSuelo+15);
- 
+        rectangleSpider.setVisible(false);        
+        Group groupSpider = enemySpider.setGroup(spider, rectangleSpider, 1, alturaSuelo+15);
+
         //murcielago
         Enemy enemyBat = new Enemy();
         enemyBat.setDmg(1);
         ImageView bat = enemyBat.setImage("images/bat.gif");
         Rectangle rectangleBat = new Rectangle(0,46,36,36);
+        Group groupBat = enemyBat.setGroup(bat,rectangleBat, 0.8,alturaSuelo-36);
         rectangleBat.setVisible(false);
-        Group groupBat = new Group(rectangleBat, bat);
-        groupBat.setScaleX(0.8);
-        groupBat.setScaleY(0.8);
-        groupBat.setLayoutY(alturaSuelo-36);
+        
         
         //ciclope
         Enemy enemyCyclop = new Enemy();
@@ -221,10 +210,8 @@ public class Main extends Application {
         ImageView cyclop = enemyCyclop.setImage("images/cyclops.gif");
         Rectangle rectangleCyclop = new Rectangle(20,26,26,38);
         rectangleCyclop.setVisible(false);
-        Group groupCyclop = new Group(rectangleCyclop, cyclop);
-        groupCyclop.setScaleX(1.5);
-        groupCyclop.setScaleY(1.5);
-        groupCyclop.setLayoutY(alturaSuelo-18);
+        Group groupCyclop = enemyBat.setGroup(cyclop,rectangleCyclop, 1.5, alturaSuelo-18);
+
         
         //vida enemiga
         Rectangle rectangleEnemyHP = new Rectangle(0,alturaSuelo,enemyHP/2,6);
@@ -288,10 +275,12 @@ public class Main extends Application {
         Timeline timeline = new Timeline(
             new KeyFrame(Duration.seconds(0.017), new EventHandler<ActionEvent>() {
                 public void handle(ActionEvent ae) { 
+                    
                     //System.out.println(distancia/10);
                     //System.out.println(hero.vida);
                     //PerformanceTracker perfTracker = PerformanceTracker.getSceneTracker(scene);
                     //System.out.println(perfTracker.getInstantFPS());
+                    
                     if (vivo == true) {
                         distancia += currentSpeed/2;
                         hero.posX -= heroCurrentSpeed;
@@ -444,21 +433,25 @@ public class Main extends Application {
         
         //Teclado
         scene.addEventHandler(KeyEvent.KEY_PRESSED, (key) -> {
-            if(key.getCode()==KeyCode.RIGHT) {
+            if(key.getCode()==KeyCode.RIGHT) { 
+                //andar hacia la derecha
                 groupHero.setScaleX(1);
                 heroParado.setVisible(false);
                 heroRun.setVisible(true);
                 heroAtaque.setVisible(false);
                 if (hero.posX <= heroePosX) {
+                    //suelo no se mueve, heroe se mueve.
                     currentSpeed = 0;
                     heroCurrentSpeed =-SPEED;
                     
                 } else {
+                    //suelo se mueve, heroe no se mueve.
                     heroCurrentSpeed = 0;
                     currentSpeed = SPEED;
                     enemySpeed = SPEED + 2;
                 }
             } else if(key.getCode()==KeyCode.LEFT) {
+                //andar hacia la izquierda
                 groupHero.setScaleX(-1);
                 heroParado.setVisible(false);
                 heroRun.setVisible(true);

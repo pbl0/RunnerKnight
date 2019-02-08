@@ -5,15 +5,17 @@
  */
 package es.pablob.runnerknightfx;
 
+import javafx.scene.Group;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.shape.Rectangle;
 
 /**
  *
  * @author PC15
  */
 public class Enemy {
-    //int vida = 200;
+    
     int posX;
     int dmgGive;
     int dmgRecibido;
@@ -22,6 +24,14 @@ public class Enemy {
         Image gifEnemy = new Image(getClass().getResourceAsStream(file));
         ImageView enemyImage = new ImageView(gifEnemy);
         return enemyImage;
+    }
+    
+    public Group setGroup(ImageView i, Rectangle r, double escala, int altura){
+        Group groupEnemy = new Group(i, r);
+        groupEnemy.setScaleX(escala);
+        groupEnemy.setScaleY(escala);
+        groupEnemy.setLayoutY(altura);
+        return groupEnemy;
     }
     
     public void setX(int x) {

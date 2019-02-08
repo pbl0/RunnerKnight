@@ -37,6 +37,7 @@ public class Hero {
     
     Group group = new Group(run, idle, attack, rect, rectAtaque);
     
+    
     public void setVida(int x) {
         vida = x;
     }
