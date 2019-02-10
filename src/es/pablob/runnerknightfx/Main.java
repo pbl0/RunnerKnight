@@ -62,6 +62,7 @@ public class Main extends Application {
     
     //heroe
     Hero hero = new Hero();
+    
     boolean vivo;
     
     //pocion
@@ -97,7 +98,7 @@ public class Main extends Application {
         pocionBool = false;
         
     }
-    //colision
+    //colision daño al heroe
     public void colisionDmg(Rectangle rectHero, Rectangle rectEnemy, int dmg) {
         Shape shapeColision = Shape.intersect(rectHero,rectEnemy);
         boolean colisionVacia = shapeColision.getBoundsInLocal().isEmpty();
@@ -190,6 +191,7 @@ public class Main extends Application {
         //araña:
         Enemy enemySpider = new Enemy();
         enemySpider.setDmg(2);
+        enemySpider.setDmgRecibido(34);
         ImageView spider = enemySpider.setImage("images/spider.gif");
         Rectangle rectangleSpider = new Rectangle(12,16,36,36);
         rectangleSpider.setVisible(false);        
@@ -198,6 +200,7 @@ public class Main extends Application {
         //murcielago
         Enemy enemyBat = new Enemy();
         enemyBat.setDmg(1);
+        enemyBat.setDmgRecibido(60);
         ImageView bat = enemyBat.setImage("images/bat.gif");
         Rectangle rectangleBat = new Rectangle(0,46,36,36);
         Group groupBat = enemyBat.setGroup(bat,rectangleBat, 0.8,alturaSuelo-36);
@@ -207,6 +210,7 @@ public class Main extends Application {
         //ciclope
         Enemy enemyCyclop = new Enemy();
         enemyCyclop.setDmg(5);
+        enemyCyclop.setDmgRecibido(25);
         ImageView cyclop = enemyCyclop.setImage("images/cyclops.gif");
         Rectangle rectangleCyclop = new Rectangle(20,26,26,38);
         rectangleCyclop.setVisible(false);
@@ -321,15 +325,15 @@ public class Main extends Application {
                             boolean colisionVaciaBat = colisionAtaque(hero.rectAtaque,rectangleBat);
                             boolean colisionVaciaCyclop = colisionAtaque(hero.rectAtaque, rectangleCyclop);
                             if (colisionVaciaSpider == false) {
-                                enemyHP -= 34;
+                                enemyHP -= enemySpider.dmgRecibido;
                                 tocado = 10;
                             } 
                             if (colisionVaciaBat == false) {
-                                enemyHP -= 60;
+                                enemyHP -= enemyBat.dmgRecibido;
                                 tocado = 10;
                             }
                             if (colisionVaciaCyclop == false) {
-                                enemyHP -= 25;
+                                enemyHP -= enemyCyclop.dmgRecibido;
                                 tocado = 10;
                             }
                         }

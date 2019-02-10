@@ -20,6 +20,7 @@ public class Hero {
     int posX;
     int width = 88;
     int height = 64;
+    
     Image runGif = new Image(getClass().getResourceAsStream("images/run.gif"));
     ImageView run = new ImageView(runGif);
     
@@ -35,7 +36,7 @@ public class Hero {
     Rectangle rectAtaque = new Rectangle(45,8,32,56);
     
     
-    Group group = new Group(run, idle, attack, rect, rectAtaque);
+    Group group = new Group( rect, rectAtaque,run, idle, attack);
     
     
     public void setVida(int x) {

@@ -27,7 +27,7 @@ public class Enemy {
     }
     
     public Group setGroup(ImageView i, Rectangle r, double escala, int altura){
-        Group groupEnemy = new Group(i, r);
+        Group groupEnemy = new Group(r, i);
         groupEnemy.setScaleX(escala);
         groupEnemy.setScaleY(escala);
         groupEnemy.setLayoutY(altura);
